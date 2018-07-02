@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Rsrc-Class-Path: bin/
+Class-Path: .
+Rsrc-Main-Class: edu.virginia.lab1test.Lab1Game
+Main-Class: org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader
+

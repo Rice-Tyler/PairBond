@@ -1,0 +1,40 @@
+COMPILING AND RUNNING FROM THE COMMAND LINE
+-------------------------------------------------------------
+
+This code comes with a bash script that compiles and runs the project. To compile and run, simply:
+
+- Make sure makefile.sh is executable (if not, run 'chmod 777 makefile.sh' or similar if you don't want to give those permissions)
+- Open makefile.sh in a text editor and make sure the last line references the correct path to main class
+	- Change this path if necessary
+- Simply run ./makefile.sh at the command line
+	- script will compile and run your project
+
+
+
+
+
+CREATING AN EXECUTABLE JAR FILE FROM COMMAND LINE
+-------------------------------------------------------------
+
+When you are done, you can create an executable jar file to make it easier for us to run and test your code.
+
+To do this, simply:
+
+- Open manifest.txt
+- Make sure the line containing "Rsrc-Main-Class: ..." contains the correct path to your main java class
+- run the following command at the command line:
+	jar cvfm lab1.jar manifest.txt bin/ src/ resources/ org/
+- you should see lab1.jar appear
+- To test, try running the following and see if your game starts: java -jar lab1.jar
+
+*ALL OF THIS SHOULD BE DONE FROM THE MAIN DIRECTORY OF YOUR PROJECT. So, java/ and this directory should contain resources/, src/, bin/, org/ etc.
+
+
+
+
+CREATING AN EXECUTABLE JAR FILE IN ECLIPSE
+-------------------------------------------------------------
+
+
+See:
+http://help.eclipse.org/kepler/index.jsp?topic=%2Forg.eclipse.jdt.doc.user%2Ftasks%2Ftasks-37.htm
