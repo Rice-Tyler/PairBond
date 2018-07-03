@@ -40,8 +40,8 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 	private Integer yVelocity = 0;
 	private Integer xAcc = 0;
 	private Integer yAcc = 0;
-	private Integer xMax = 0;
-	private Integer yMax = 0;
+	private Integer xMax = 10;
+	private Integer yMax = 10;
 	private Double friction = .90;
 	private Double mass = 1.0;
 	private DisplayObjectContainer parent = null;
@@ -468,10 +468,12 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 		if(Math.abs(xVelocity)>xMax) {
 			if(xVelocity>0)xVelocity = xMax;
 			if(xVelocity<0)xVelocity = -xMax;
+//			System.out.printf("%s: setx \n",this.getId());
 		}
 		if(Math.abs(yVelocity)>yMax) {
 			if(yVelocity>0)yVelocity = yMax;
 			if(yVelocity<0)yVelocity = -yMax;
+//			System.out.printf("%s: sety \n",this.getId());
 		}
 		this.position = new Point(this.getPosition().x+xVelocity,this.getPosition().y+yVelocity);
 	}
@@ -483,11 +485,12 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 		while(!this.forces.empty()) {
 			Point p = forces.pop();
 			total = new Point(total.x+p.x,total.y+p.y);
-			System.out.printf("%s:%s",this.getId(),total);
 		}
+		
 		this.xAcc = (int) (total.x/this.mass);
 		this.yAcc = (int) (total.y/this.mass);
 		if(NormalUp) {
+//			System.out.printf("%s: Normal \n",this.getId());
 			this.yVelocity=0;
 			this.yAcc=0;
 		}

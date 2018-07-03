@@ -36,8 +36,11 @@ public class Prototype extends Game {
 	DisplayObjectContainer Plats = new DisplayObjectContainer("Plats");
 	DisplayObjectContainer Proj = new DisplayObjectContainer("Proj");
 	boolean jump = false;
-	
+	boolean fire = true;
 	public boolean onGround = false;
+	int f_count = 181;
+	double velocity = 50.0;
+	double angle = 90.0;
 
 	public Prototype() {
 		super("Prototype", 1000, 1000);
@@ -60,13 +63,15 @@ public class Prototype extends Game {
 		Point p = mario.getPosition();
 		onGround = false;
 		boolean move = false;
+		
+		
 		mario.gravity();
 		for(int x = 0; x<Proj.getChildren().size();x++) {
 //			System.out.println("p");
 			DisplayObject P = Proj.getChild(x);
-			P.gravity();
-			System.out.printf("x: %d, %d \n",P.getxVelocity(),P.getxAcc());
-			System.out.printf("y: %d, %d \n",P.getyVelocity(),P.getyAcc());
+//			P.gravity();
+//			System.out.printf("x: %d, %d \n",P.getPosition().x,P.getxVelocity());
+//			System.out.printf("y: %d, %d \n",P.getPosition().y,P.getyVelocity());
 			P.move();
 			if(P instanceof AnimatedSprite) {
 				((AnimatedSprite)P).animate();
@@ -81,6 +86,11 @@ public class Prototype extends Game {
 			move = true;
 			mario.push_force(2,0);
 		}
+		if(pressedKeys.contains(KeyEvent.VK_Q) && angle < 180)angle+=.5;
+		if(pressedKeys.contains(KeyEvent.VK_W) && angle > 0  )angle-=.5;
+		if(pressedKeys.contains(KeyEvent.VK_A) && velocity < 100)velocity+=.5;
+		if(pressedKeys.contains(KeyEvent.VK_S) && velocity > 0  )velocity-=.5;
+//		
 		Double theta = p1.getRotation();
 		if(pressedKeys.contains(KeyEvent.VK_Q))theta+=.3;
 		if(pressedKeys.contains(KeyEvent.VK_W))theta-=.3;
@@ -93,17 +103,26 @@ public class Prototype extends Game {
 			jump = true;
 		}
 		
-		if(pressedKeys.contains(KeyEvent.VK_SPACE)) {
+		if(pressedKeys.contains(KeyEvent.VK_SPACE) && fire) {
+			fire = false;
+			f_count = 0;
 			this.dispatchEvent(new ProjectileEvent("Fire",this,ProjectileEvent.PROJECTILE_FIRED, "s"));
 //			mario.push_force(0,-50);
 //				this.dispatchEvent(new SoundEvent(SoundEvent.TRIGGER_SOUND_EFFECT,this,"jump"));
 		}	
+		if(f_count<=50) {
+			f_count++;
+		}
+		else{
+			fire = true;
+//			System.out.println("f");
+		}
 		for(int x = 0; x<Proj.getChildren().size();x++) {
 //			System.out.println("p");
 			DisplayObject P = Proj.getChild(x);
 			P.gravity();
-			System.out.printf("x: %d, %d \n",P.getxVelocity(),P.getxAcc());
-			System.out.printf("y: %d, %d \n",P.getyVelocity(),P.getyAcc());
+//			System.out.printf("x: %d, %d \n",P.getxVelocity(),P.getxAcc());
+//			System.out.printf("y: %d, %d \n",P.getyVelocity(),P.getyAcc());
 			P.move();
 			if(P instanceof AnimatedSprite) {
 				((AnimatedSprite)P).animate();
@@ -181,14 +200,13 @@ public class Prototype extends Game {
 			}
 		}
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_FIRED) {
-			System.out.println("fire");
+			System.out.println("fire"); 
 			Projectile f1 = new Projectile("f1");
 			f1.setPosition(new Point(mario.getPosition().x-25,mario.getPosition().y));
-			double velocity = 50.0;
-			double angle = 90.0;
-			angle = Math.toRadians(angle);
-			int xv = (int)(velocity*Math.cos(angle));
-			int yv = -(int)(velocity*Math.sin(angle));
+			
+			double rad = Math.toRadians(angle);
+			int xv = (int)(velocity*Math.cos(rad));
+			int yv = -(int)(velocity*Math.sin(rad));
 			System.out.println(xv);
 			System.out.println(yv);
 			f1.push_force(xv,yv);

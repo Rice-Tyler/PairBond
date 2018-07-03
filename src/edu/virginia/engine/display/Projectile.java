@@ -14,5 +14,9 @@ public class Projectile extends AnimatedSprite {
 		this.animate();
 		this.setScale(1.0);
 		this.setSolid(false);
+		this.setNormalUp(false);
+		this.setMass(1.0);
+		this.setyMax(100);
+		this.setxMax(100);
 	}
 }
