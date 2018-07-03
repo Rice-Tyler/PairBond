@@ -428,6 +428,12 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 	public Shape getLocalHitbox(){
 		return getLocalTransform().createTransformedShape(new Rectangle(0, 0, getUnscaledWidth(), getUnscaledHeight()));
 	}
+	public Stack<Point> getForces() {
+		return forces;
+	}
+	public void setForces(Stack<Point> forces) {
+		this.forces = forces;
+	}
 	public boolean collidesWith(DisplayObject other){
 		Area a = new Area(getGlobalHitbox());
 		a.intersect(new Area(other.getGlobalHitbox()));
@@ -477,6 +483,7 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 		while(!this.forces.empty()) {
 			Point p = forces.pop();
 			total = new Point(total.x+p.x,total.y+p.y);
+			System.out.printf("%s:%s",this.getId(),total);
 		}
 		this.xAcc = (int) (total.x/this.mass);
 		this.yAcc = (int) (total.y/this.mass);

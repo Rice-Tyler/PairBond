@@ -14,12 +14,15 @@ import edu.virginia.engine.animation.TweenJuggler;
 import edu.virginia.engine.animation.TweenTransitions;
 import edu.virginia.engine.animation.TweenableParams;
 import edu.virginia.engine.animation.TweenableParams.Tweenables;
+import edu.virginia.engine.display.AnimatedSprite;
 import edu.virginia.engine.display.DisplayObject;
 import edu.virginia.engine.display.DisplayObjectContainer;
 import edu.virginia.engine.display.Game;
+import edu.virginia.engine.display.Projectile;
 import edu.virginia.engine.events.CoinEvent;
 import edu.virginia.engine.events.CollisionEvent;
 import edu.virginia.engine.events.Event;
+import edu.virginia.engine.events.ProjectileEvent;
 import edu.virginia.engine.events.SoundEvent;
 import edu.virginia.engine.events.TweenEvent;
 import edu.virginia.engine.sound.SoundManager;
@@ -31,6 +34,7 @@ public class Prototype extends Game {
 	TweenJuggler TJ = new TweenJuggler();
 	Platform p1 = new Platform("p1");
 	DisplayObjectContainer Plats = new DisplayObjectContainer("Plats");
+	DisplayObjectContainer Proj = new DisplayObjectContainer("Proj");
 	boolean jump = false;
 	
 	public boolean onGround = false;
@@ -41,6 +45,7 @@ public class Prototype extends Game {
 		this.Scale();
 		this.Position();
 		this.findCenter();
+		this.addEventListener(this, ProjectileEvent.PROJECTILE_FIRED);
 		mario.addEventListener(this, CollisionEvent.COLLISION);
 		mario.setyMax(100);
 		SM.loadSoundEffect("jump", "resources/jump.wav");
@@ -56,6 +61,17 @@ public class Prototype extends Game {
 		onGround = false;
 		boolean move = false;
 		mario.gravity();
+		for(int x = 0; x<Proj.getChildren().size();x++) {
+//			System.out.println("p");
+			DisplayObject P = Proj.getChild(x);
+			P.gravity();
+			System.out.printf("x: %d, %d \n",P.getxVelocity(),P.getxAcc());
+			System.out.printf("y: %d, %d \n",P.getyVelocity(),P.getyAcc());
+			P.move();
+			if(P instanceof AnimatedSprite) {
+				((AnimatedSprite)P).animate();
+			}
+		}
 		if(p.y>=(int)Math.floor(930-((mario.getUnscaledHeight()*mario.getScaleY()))))onGround = true;
 		if(pressedKeys.contains(KeyEvent.VK_LEFT)) {
 			move = true;
@@ -76,13 +92,22 @@ public class Prototype extends Game {
 			mario.setNormalUp(true);
 			jump = true;
 		}
-		if(jump) {
-			if(pressedKeys.contains(KeyEvent.VK_SPACE)) {
-				mario.setNormalUp(false);
-				mario.push_force(0,-50);
-				this.dispatchEvent(new SoundEvent(SoundEvent.TRIGGER_SOUND_EFFECT,this,"jump"));
-				jump = false;
-			}	
+		
+		if(pressedKeys.contains(KeyEvent.VK_SPACE)) {
+			this.dispatchEvent(new ProjectileEvent("Fire",this,ProjectileEvent.PROJECTILE_FIRED, "s"));
+//			mario.push_force(0,-50);
+//				this.dispatchEvent(new SoundEvent(SoundEvent.TRIGGER_SOUND_EFFECT,this,"jump"));
+		}	
+		for(int x = 0; x<Proj.getChildren().size();x++) {
+//			System.out.println("p");
+			DisplayObject P = Proj.getChild(x);
+			P.gravity();
+			System.out.printf("x: %d, %d \n",P.getxVelocity(),P.getxAcc());
+			System.out.printf("y: %d, %d \n",P.getyVelocity(),P.getyAcc());
+			P.move();
+			if(P instanceof AnimatedSprite) {
+				((AnimatedSprite)P).animate();
+			}
 		}
 		mario.move();
 		for(int x = 0;x<Plats.getChildren().size();x++) {
@@ -102,8 +127,9 @@ public class Prototype extends Game {
 	@Override
 	public void setDisplay() {
 		this.addChild(mario);
-		this.addChild(Plats);
-		Plats.addChild(p1);
+//		this.addChild(Plats);
+//		Plats.addChild(p1);
+		this.addChild(Proj);
 //		Plats.addChild(p4);
 	}
 	public void Scale() {
@@ -111,7 +137,7 @@ public class Prototype extends Game {
 		p1.setScaleX(5.0);
 	}
 	public void Position() {
-		mario.setPosition(400,600);
+		mario.setPosition(400,500);
 		p1.setPosition(0, 750);
 	}
 	@Override
@@ -153,6 +179,20 @@ public class Prototype extends Game {
 				fadeout.animate(TweenableParams.Tweenables.Alpha, 1.0, 0.0, 300.0);
 				TJ.add(fadeout);
 			}
+		}
+		if(event.getEventType() == ProjectileEvent.PROJECTILE_FIRED) {
+			System.out.println("fire");
+			Projectile f1 = new Projectile("f1");
+			f1.setPosition(new Point(mario.getPosition().x-25,mario.getPosition().y));
+			double velocity = 50.0;
+			double angle = 90.0;
+			angle = Math.toRadians(angle);
+			int xv = (int)(velocity*Math.cos(angle));
+			int yv = -(int)(velocity*Math.sin(angle));
+			System.out.println(xv);
+			System.out.println(yv);
+			f1.push_force(xv,yv);
+			Proj.addChild(f1);
 		}
 	}
 	public static void main(String[] args) {

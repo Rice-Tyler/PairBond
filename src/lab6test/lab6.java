@@ -128,7 +128,7 @@ public class lab6 extends Game implements IEventListener {
 		if(quest!=null) {
 			String tally = String.format("%d/%d", quest.getNum_coins(), quest.getTotal_coins());
 			g.setFont(new Font("TimesRoman", Font.PLAIN, 100));
-			g.drawString(tally, 10, 75);
+			g.drawString(tally, 10, 7);
 		}
 //		g2.draw(p1.getGlobalHitbox());
 //		g2.draw(p2.getGlobalHitbox());
