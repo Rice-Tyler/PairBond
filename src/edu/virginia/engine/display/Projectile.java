@@ -11,8 +11,8 @@ public class Projectile extends Sprite implements IEventListener {
 	private Double fuse = 1000.0;
 	private GameClock clock;
 	private Double spread = 0.0;
-	private DisplayObject Blast;
-	private enum BlastType{ROUND,RECT};
+	private String Blast;
+	private String BlastType = "Round";
 	private Integer radius;
 	
 	private ArrayList<Projectile> submunition = new ArrayList<Projectile>();
