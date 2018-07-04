@@ -43,17 +43,19 @@ public class Prototype extends Game {
 	double angle = 90.0;
 
 	public Prototype() {
-		super("Prototype", 1000, 1000);
+		super("Prototype", 3000, 2000);
 		this.setDisplay();
 		this.Scale();
 		this.Position();
 		this.findCenter();
 		this.addEventListener(this, ProjectileEvent.PROJECTILE_FIRED);
+		this.addEventListener(this, ProjectileEvent.PROJECTILE_EXPLODE);
 		mario.addEventListener(this, CollisionEvent.COLLISION);
 		mario.setyMax(100);
 		SM.loadSoundEffect("jump", "resources/jump.wav");
 		SM.loadMusic("music","resources/mario_music.wav");
 		this.dispatchEvent(new SoundEvent(SoundEvent.TRIGGER_MUSIC,this,"music"));
+		System.out.println(this.getDispatchList().keySet());
 	}
 	
 	@Override
@@ -77,7 +79,7 @@ public class Prototype extends Game {
 				((AnimatedSprite)P).animate();
 			}
 		}
-		if(p.y>=(int)Math.floor(930-((mario.getUnscaledHeight()*mario.getScaleY()))))onGround = true;
+		if(p.y>=(int)Math.floor(1930-((mario.getUnscaledHeight()*mario.getScaleY()))))onGround = true;
 		if(pressedKeys.contains(KeyEvent.VK_LEFT)) {
 			move = true;
 			mario.push_force(-2,0);
@@ -98,7 +100,7 @@ public class Prototype extends Game {
 //		mario.eval_force();
 		if(!move)mario.xfriction();
 		if(onGround) {
-			mario.setPosition(new Point(p.x,(int)Math.floor((930-(mario.getUnscaledHeight()*mario.getScaleY())))));
+			mario.setPosition(new Point(p.x,(int)Math.floor((1930-(mario.getUnscaledHeight()*mario.getScaleY())))));
 			mario.setNormalUp(true);
 			jump = true;
 		}
@@ -106,7 +108,8 @@ public class Prototype extends Game {
 		if(pressedKeys.contains(KeyEvent.VK_SPACE) && fire) {
 			fire = false;
 			f_count = 0;
-			this.dispatchEvent(new ProjectileEvent("Fire",this,ProjectileEvent.PROJECTILE_FIRED, "s"));
+			System.out.println("f");
+			this.dispatchEvent(new ProjectileEvent(ProjectileEvent.PROJECTILE_FIRED,this,"Fire", "s"));
 //			mario.push_force(0,-50);
 //				this.dispatchEvent(new SoundEvent(SoundEvent.TRIGGER_SOUND_EFFECT,this,"jump"));
 		}	
@@ -117,18 +120,30 @@ public class Prototype extends Game {
 			fire = true;
 //			System.out.println("f");
 		}
+		mario.move();
 		for(int x = 0; x<Proj.getChildren().size();x++) {
 //			System.out.println("p");
-			DisplayObject P = Proj.getChild(x);
+			Projectile P = (Projectile)Proj.getChild(x);
 			P.gravity();
-//			System.out.printf("x: %d, %d \n",P.getxVelocity(),P.getxAcc());
+			System.out.printf("x: %d, %d \n",P.getxVelocity(),P.getxAcc());
 //			System.out.printf("y: %d, %d \n",P.getyVelocity(),P.getyAcc());
 			P.move();
-			if(P instanceof AnimatedSprite) {
-				((AnimatedSprite)P).animate();
+			double xvel = P.getxVelocity();
+			double yvel = P.getyVelocity();
+			double thetap = -Math.atan(xvel/yvel)+(Math.PI/2);
+			if(yvel>0)thetap+=Math.PI;
+			P.findCenter();
+			P.setRotation(thetap);
+			for(int y = 0; y<this.getChildren().size();y++) {
+				if(P.collidesWith(this.getChild(y))) {
+					this.dispatchEvent(new ProjectileEvent(ProjectileEvent.PROJECTILE_EXPLODE,P,P.getId(),"s"));
+				}
+			}
+			if(P.getClock().getElapsedTime()>P.getFuse()) {
+				this.dispatchEvent(new ProjectileEvent(ProjectileEvent.PROJECTILE_EXPLODE,P,P.getId(),"s"));
 			}
 		}
-		mario.move();
+		
 		for(int x = 0;x<Plats.getChildren().size();x++) {
 			DisplayObject c = Plats.getChild(x);
 			if(mario.collidesWith(c)) {
@@ -202,7 +217,9 @@ public class Prototype extends Game {
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_FIRED) {
 			System.out.println("fire"); 
 			Projectile f1 = new Projectile("f1");
-			f1.setPosition(new Point(mario.getPosition().x-25,mario.getPosition().y));
+			Point mp = mario.getPosition();
+			Point pp = mario.getPivotPoint();
+			f1.setPosition(new Point((int)(mp.x+pp.x),(int)(mp.y+pp.y-(f1.getUnscaledHeight()*f1.getScaleY()))));
 			
 			double rad = Math.toRadians(angle);
 			int xv = (int)(velocity*Math.cos(rad));
@@ -210,7 +227,15 @@ public class Prototype extends Game {
 			System.out.println(xv);
 			System.out.println(yv);
 			f1.push_force(xv,yv);
+			this.addEventListener(f1, ProjectileEvent.PROJECTILE_EXPLODE);
+			
 			Proj.addChild(f1);
+		}
+		if(event.getEventType() == ProjectileEvent.PROJECTILE_EXPLODE) {
+			ProjectileEvent e = (ProjectileEvent)event;
+			System.out.println("explode"); 
+			Proj.removeChildById(e.getId());
+			
 		}
 	}
 	public static void main(String[] args) {

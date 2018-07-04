@@ -86,6 +86,10 @@ public class DisplayObjectContainer extends DisplayObject {
 	public void removeChildAtIndex(int x) {
 		this.children.remove(x);
 	}
+	public boolean removeChildById(String id) {
+		DisplayObject d = new DisplayObject(id);
+		return this.children.remove(d);
+	}
 	
 	public void removeAll() {
 		for(int x = 0; x < this.num_children;x++) {

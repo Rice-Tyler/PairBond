@@ -496,7 +496,7 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 		}
 	}
 	public void gravity() {
-		this.forces.push(new Point(0,(int)(4*this.mass)));
+		this.forces.push(new Point(0,(int)(3*this.mass)));
 	}
 	public void push_force(Point p) {
 		this.forces.push(p);
