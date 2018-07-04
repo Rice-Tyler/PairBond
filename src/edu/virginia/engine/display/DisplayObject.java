@@ -282,6 +282,18 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 	public void setSolid(boolean solid) {
 		this.solid = solid;
 	}
+	public String getHitboxShape() {
+		return hitboxShape;
+	}
+	public void setHitboxShape(String hitboxShape) {
+		this.hitboxShape = hitboxShape;
+	}
+	public Double getRadius() {
+		return radius;
+	}
+	public void setRadius(Double radius) {
+		this.radius = radius;
+	}
 	/**
 	 * Invoked on every frame before drawing. Used to update this display
 	 * objects state before the draw occurs. Should be overridden if necessary

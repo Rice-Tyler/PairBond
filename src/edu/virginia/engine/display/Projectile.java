@@ -11,9 +11,8 @@ public class Projectile extends Sprite implements IEventListener {
 	private Double fuse = 1000.0;
 	private GameClock clock;
 	private Double spread = 0.0;
-	private String Blast;
+	private Explosion exp;
 	private String BlastType = "Round";
-	private Integer radius;
 	
 	private ArrayList<Projectile> submunition = new ArrayList<Projectile>();
 	public Projectile(String id) {
@@ -27,6 +26,7 @@ public class Projectile extends Sprite implements IEventListener {
 //		this.set_animation("spin");
 //		this.animate();
 		clock = new GameClock();
+		this.exp=new Explosion(this.getId(),0,100,BlastType,60.0);
 		this.setScale(.2);
 		this.setSolid(false);
 		this.setNormalUp(false);
@@ -38,6 +38,25 @@ public class Projectile extends Sprite implements IEventListener {
 			sub.setSolid(false);
 			this.addChild(sub);
 		}
+		this.addChild(exp);
+	}
+	public Double getSpread() {
+		return spread;
+	}
+	public void setSpread(Double spread) {
+		this.spread = spread;
+	}
+	public Explosion getExp() {
+		return exp;
+	}
+	public void setExp(Explosion exp) {
+		this.exp = exp;
+	}
+	public String getBlastType() {
+		return BlastType;
+	}
+	public void setBlastType(String blastType) {
+		BlastType = blastType;
 	}
 	public Double getFuse() {
 		return fuse;

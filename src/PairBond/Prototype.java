@@ -1,7 +1,9 @@
 package PairBond;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import edu.virginia.engine.animation.TweenableParams.Tweenables;
 import edu.virginia.engine.display.AnimatedSprite;
 import edu.virginia.engine.display.DisplayObject;
 import edu.virginia.engine.display.DisplayObjectContainer;
+import edu.virginia.engine.display.Explosion;
 import edu.virginia.engine.display.Game;
 import edu.virginia.engine.display.Projectile;
 import edu.virginia.engine.events.CoinEvent;
@@ -35,6 +38,8 @@ public class Prototype extends Game {
 	Platform p1 = new Platform("p1");
 	DisplayObjectContainer Plats = new DisplayObjectContainer("Plats");
 	DisplayObjectContainer Proj = new DisplayObjectContainer("Proj");
+	/* Container to hold Explosion Hitboxes*/
+	DisplayObjectContainer EXP = new DisplayObjectContainer("EXP");
 	boolean jump = false;
 	boolean fire = true;
 	public boolean onGround = false;
@@ -51,6 +56,7 @@ public class Prototype extends Game {
 		this.addEventListener(this, ProjectileEvent.PROJECTILE_FIRED);
 		this.addEventListener(this, ProjectileEvent.PROJECTILE_EXPLODE);
 		mario.addEventListener(this, CollisionEvent.COLLISION);
+		
 		mario.setyMax(100);
 		SM.loadSoundEffect("jump", "resources/jump.wav");
 		SM.loadMusic("music","resources/mario_music.wav");
@@ -156,6 +162,11 @@ public class Prototype extends Game {
 	@Override 
 	public void draw(Graphics g) {
 		if(this!=null)super.draw(g);
+		Graphics2D g2 = (Graphics2D)g;
+		for(int i = 0; i<EXP.getChildren().size();i++) {
+			g2.setColor(Color.RED);
+			g2.draw(EXP.getChild(i).getGlobalHitbox());
+		}
 		
 	}
 	@Override
@@ -234,6 +245,10 @@ public class Prototype extends Game {
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_EXPLODE) {
 			ProjectileEvent e = (ProjectileEvent)event;
 			System.out.println("explode"); 
+			Projectile p = (Projectile)Proj.getChild(e.getId());
+			Explosion exp = p.getExp();
+			exp.setPosition(localToGlobal(exp.getPosition(),exp));
+			EXP.addChild(exp);
 			Proj.removeChildById(e.getId());
 			
 		}
