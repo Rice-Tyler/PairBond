@@ -10,6 +10,11 @@ import edu.virginia.engine.util.GameClock;
 public class Projectile extends Sprite implements IEventListener {
 	private Double fuse = 1000.0;
 	private GameClock clock;
+	private Double spread = 0.0;
+	private DisplayObject Blast;
+	private enum BlastType{ROUND,RECT};
+	private Integer radius;
+	
 	private ArrayList<Projectile> submunition = new ArrayList<Projectile>();
 	public Projectile(String id) {
 		super(id,"proj.png");

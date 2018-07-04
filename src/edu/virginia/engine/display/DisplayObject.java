@@ -8,9 +8,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.awt.Point;
 import java.awt.Rectangle;
+
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
 import java.awt.AlphaComposite;
 import java.awt.Composite;
 import java.util.Stack;
@@ -51,6 +53,8 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 	private Stack<Point> forces = new Stack<Point>();
 	private boolean NormalUp = false;
 	private boolean reverse = false;
+	private String hitboxShape = "Rect";
+	private Double radius = 0.0;
 
 	public boolean isNormalUp() {
 		return NormalUp;
@@ -422,11 +426,13 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 		return at;
 	}
 	public Shape getGlobalHitbox(){
-		return getGlobalTransform().createTransformedShape(new Rectangle(0, 0, getUnscaledWidth(), getUnscaledHeight()));
+		if(this.hitboxShape == "Round")return getGlobalTransform().createTransformedShape(new Ellipse2D.Double(0.0,0.0,radius,radius));
+		else return getGlobalTransform().createTransformedShape(new Rectangle(0, 0, getUnscaledWidth(), getUnscaledHeight()));
 	}
 		
 	public Shape getLocalHitbox(){
-		return getLocalTransform().createTransformedShape(new Rectangle(0, 0, getUnscaledWidth(), getUnscaledHeight()));
+		if(this.hitboxShape == "Round")return getLocalTransform().createTransformedShape(new Ellipse2D.Double(0.0,0.0,radius,radius));
+		else return getLocalTransform().createTransformedShape(new Rectangle(0, 0, getUnscaledWidth(), getUnscaledHeight()));
 	}
 	public Stack<Point> getForces() {
 		return forces;
