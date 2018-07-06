@@ -23,6 +23,7 @@ import edu.virginia.engine.display.DisplayObjectContainer;
 import edu.virginia.engine.display.Explosion;
 import edu.virginia.engine.display.Game;
 import edu.virginia.engine.display.Projectile;
+import edu.virginia.engine.display.Sprite;
 import edu.virginia.engine.events.CoinEvent;
 import edu.virginia.engine.events.CollisionEvent;
 import edu.virginia.engine.events.Event;
@@ -32,7 +33,7 @@ import edu.virginia.engine.events.TweenEvent;
 import edu.virginia.engine.sound.SoundManager;
 
 public class Prototype extends Game {
-	Mario mario = new Mario("mario");
+	Sprite mario = new Sprite("mario","mario.png");
 	Mario m2 = new Mario("m2");
 	SoundManager SM = new SoundManager();
 	TweenJuggler TJ = new TweenJuggler();
@@ -45,11 +46,11 @@ public class Prototype extends Game {
 	boolean fire = true;
 	public boolean onGround = false;
 	int f_count = 181;
-	double velocity = 50.0;
+	double velocity = 25.0;
 	double angle = 90.0;
 
 	public Prototype() {
-		super("Prototype", 3000, 2000);
+		super("Prototype", 1500, 1500);
 		this.setDisplay();
 		this.Scale();
 		this.Position();
@@ -67,7 +68,7 @@ public class Prototype extends Game {
 	
 	@Override
 	public void update(ArrayList<Integer> pressedKeys) {
-		mario.animate();
+//		mario.animate();
 		mario.setxAcc(0);
 		Point p = mario.getPosition();
 		onGround = false;
@@ -86,7 +87,7 @@ public class Prototype extends Game {
 				((AnimatedSprite)P).animate();
 			}
 		}
-		if(p.y>=(int)Math.floor(1930-((mario.getUnscaledHeight()*mario.getScaleY()))))onGround = true;
+		if(p.y>=(int)Math.floor(930-((mario.getUnscaledHeight()*mario.getScaleY()))))onGround = true;
 		if(pressedKeys.contains(KeyEvent.VK_LEFT)) {
 			move = true;
 			mario.push_force(-2,0);
@@ -97,7 +98,7 @@ public class Prototype extends Game {
 		}
 		if(pressedKeys.contains(KeyEvent.VK_Q) && angle < 180)angle+=.5;
 		if(pressedKeys.contains(KeyEvent.VK_W) && angle > 0  )angle-=.5;
-		if(pressedKeys.contains(KeyEvent.VK_A) && velocity < 100)velocity+=.5;
+		if(pressedKeys.contains(KeyEvent.VK_A) && velocity < 50)velocity+=.5;
 		if(pressedKeys.contains(KeyEvent.VK_S) && velocity > 0  )velocity-=.5;
 //		
 		Double theta = p1.getRotation();
@@ -107,7 +108,7 @@ public class Prototype extends Game {
 //		mario.eval_force();
 		if(!move)mario.xfriction();
 		if(onGround) {
-			mario.setPosition(new Point(p.x,(int)Math.floor((1930-(mario.getUnscaledHeight()*mario.getScaleY())))));
+			mario.setPosition(new Point(p.x,(int)Math.floor((930-(mario.getUnscaledHeight()*mario.getScaleY())))));
 			mario.setNormalUp(true);
 			jump = true;
 		}
@@ -132,7 +133,8 @@ public class Prototype extends Game {
 //			System.out.println("p");
 			Projectile P = (Projectile)Proj.getChild(x);
 			P.gravity();
-			System.out.printf("x: %d, %d \n",P.getxVelocity(),P.getxAcc());
+//			System.out.printf("%s: %s \n", P.getId(), P.getPosition());
+			System.out.printf("%s:: x: %d, %d  ",P.getId(), P.getxVelocity(),P.getxAcc());
 			System.out.printf("y: %d, %d \n",P.getyVelocity(),P.getyAcc());
 			P.move();
 			double xvel = P.getxVelocity();
@@ -147,7 +149,8 @@ public class Prototype extends Game {
 					x--;
 				}
 			}
-			if(P.getClock().getElapsedTime()>P.getFuse()) {
+			P.incCountdown();
+			if(P.getCountdown()>P.getFuse()) {
 				this.dispatchEvent(new ProjectileEvent(ProjectileEvent.PROJECTILE_EXPLODE,P,P.getId(),"s"));
 				x--;
 			}
@@ -166,11 +169,13 @@ public class Prototype extends Game {
 	public void draw(Graphics g) {
 		if(this!=null)super.draw(g);
 		Graphics2D g2 = (Graphics2D)g;
-		for(int i = 0; i<EXP.getChildren().size();i++) {
-			g2.setColor(Color.RED);
-			g2.draw(EXP.getChild(i).getGlobalHitbox());
+		if(EXP!=null) {
+			for(int i = 0; i<EXP.getChildren().size();i++) {
+				g2.setColor(Color.RED);
+				g2.draw(EXP.getChild(i).getGlobalHitbox());
+			}
 		}
-		
+		g2.draw(mario.getGlobalHitbox());
 	}
 	@Override
 	public void setDisplay() {
@@ -181,7 +186,7 @@ public class Prototype extends Game {
 //		Plats.addChild(p4);
 	}
 	public void Scale() {
-		mario.setScale(3.0);
+		mario.setScale(.50);
 		p1.setScaleX(5.0);
 	}
 	public void Position() {
@@ -234,17 +239,30 @@ public class Prototype extends Game {
 			Projectile f2 = new Projectile("f2");
 			f2.setSolid(false);
 			f2.setVisible(false);
-			f1.setFuse(30.0);
+			Projectile f3 = new Projectile("f3");
+			f3.setSolid(false);
+			f3.setVisible(false);
+			Projectile f4 = new Projectile("f4");
+			f4.setSolid(false);
+			f4.setVisible(false);
+			f1.setFuse(20);
+			f2.setFuse(20);
+			f3.setFuse(20);
+			f4.setFuse(20);
+			f1.setSpread(40.0);
 			f1.addSubmunition(f2);
+			f1.addSubmunition(f3);
+			f1.addSubmunition(f4);
+			mario.findCenter();
 			Point mp = mario.getPosition();
-			Point pp = mario.getPivotPoint();
-			f1.setPosition(new Point((int)(mp.x+pp.x),(int)(mp.y+pp.y-(f1.getUnscaledHeight()*f1.getScaleY()))));
+//			Point pp = mario.getPivotPoint();
+			f1.setPosition(new Point((int)(mp.x+((mario.getUnscaledWidth()*mario.getScaleX())/4)),(int)(mp.y-(f1.getUnscaledHeight()*f1.getScaleY()))));
 			
 			double rad = Math.toRadians(angle);
 			int xv = (int)(velocity*Math.cos(rad));
 			int yv = -(int)(velocity*Math.sin(rad));
-			System.out.println(xv);
-			System.out.println(yv);
+//			System.out.println(xv);
+//			System.out.println(yv);
 			f1.push_force(xv,yv);
 			this.addEventListener(f1, ProjectileEvent.PROJECTILE_EXPLODE);
 			
@@ -255,11 +273,21 @@ public class Prototype extends Game {
 			System.out.println("explode"); 
 			Projectile p = (Projectile)Proj.getChild(e.getId());
 			ArrayList<Projectile> psub = p.getSubmunition();
+			double spread = p.getSpread();
+			spread = spread/psub.size();
+			Double spread_start = 0.0;
+			if(psub.size()%2 ==1) {
+				spread_start = -(psub.size()-1)/2 *spread;
+			}
+			else {
+				spread_start = -(psub.size())/2 *spread;
+			}
 			for(int z = 0;z<psub.size();z++) {
 				Projectile temp = psub.get(z);
 				
 				temp.setxVelocity(p.getxVelocity());
 				temp.setyVelocity(p.getyVelocity());
+				temp.turn(spread_start + (z*spread));
 				temp.setSolid(true);
 				temp.setVisible(true);
 				temp.setPosition(localToGlobal(temp.getPosition(),temp));

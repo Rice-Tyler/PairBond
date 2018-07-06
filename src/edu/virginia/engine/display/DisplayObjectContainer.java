@@ -13,10 +13,12 @@ public class DisplayObjectContainer extends DisplayObject {
 
 	public DisplayObjectContainer(String id, String fileName) {
 		super(id, fileName);
+		this.children = new ArrayList<DisplayObject>();
 	}
 
 	public DisplayObjectContainer(String id) {
 		super(id);
+		this.children = new ArrayList<DisplayObject>();
 	}
 	
 	public DisplayObjectContainer(String id, ArrayList<DisplayObject> children) {

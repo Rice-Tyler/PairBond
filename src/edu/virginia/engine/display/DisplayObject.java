@@ -524,7 +524,7 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 		}
 	}
 	public void gravity() {
-		this.forces.push(new Point(0,(int)(3*this.mass)));
+		this.forces.push(new Point(0,(int)(1*this.mass)));
 	}
 	public void push_force(Point p) {
 		this.forces.push(p);
@@ -566,7 +566,27 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 		}
 		return false;
 	}
-	public static void turn(double angle) {
+	public void turn(double angle) {
 		
+		Double ang = 0.0;
+		if(this.getxVelocity()==0.0) {
+			if(this.yVelocity>0) {
+				ang = Math.PI/2;
+			}
+			else {
+				ang = - Math.PI/2;
+			}
+		}
+		else {
+			 ang = Math.tan(this.getyVelocity()/this.getxVelocity());
+		}
+		angle = Math.toRadians(angle);
+		System.out.printf("init: %f,",ang);
+		System.out.printf("turn by: %f ", angle);
+		double mag = Math.sqrt(Math.pow(this.getxVelocity(),2) + Math.pow(this.getyVelocity(),2));
+		System.out.printf("total V: %f \n", mag);
+		ang += angle;
+		this.xVelocity = (int)(mag* Math.cos(ang)); 
+		this.yVelocity = (int)(mag* Math.sin(ang)); 
 	}
 }

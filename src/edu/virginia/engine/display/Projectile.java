@@ -8,8 +8,8 @@ import edu.virginia.engine.events.ProjectileEvent;
 import edu.virginia.engine.util.GameClock;
 
 public class Projectile extends Sprite implements IEventListener {
-	private Double fuse = 1000.0;
-	private GameClock clock;
+	private int fuse = 100;
+	private int countdown = 0;
 	private Double spread = 0.0;
 	private Explosion exp;
 	private String BlastType = "Round";
@@ -25,9 +25,9 @@ public class Projectile extends Sprite implements IEventListener {
 //		this.setEnd(3);
 //		this.set_animation("spin");
 //		this.animate();
-		clock = new GameClock();
+//		clock = new GameClock();
 		this.exp=new Explosion(this.getId(),0,100,BlastType,60.0);
-		this.setScale(.2);
+		this.setScale(.1);
 		this.setSolid(false);
 		this.setNormalUp(false);
 		this.setMass(1.0);
@@ -58,17 +58,17 @@ public class Projectile extends Sprite implements IEventListener {
 	public void setBlastType(String blastType) {
 		BlastType = blastType;
 	}
-	public Double getFuse() {
+	public int getFuse() {
 		return fuse;
 	}
-	public void setFuse(Double fuse) {
+	public void setFuse(int fuse) {
 		this.fuse = fuse;
 	}
-	public GameClock getClock() {
-		return clock;
+	public int getCountdown() {
+		return countdown;
 	}
-	public void setClock(GameClock clock) {
-		this.clock = clock;
+	public void incCountdown() {
+		this.countdown++;
 	}
 	public ArrayList<Projectile> getSubmunition() {
 		return submunition;
@@ -77,6 +77,7 @@ public class Projectile extends Sprite implements IEventListener {
 		this.submunition = submunition;
 	}
 	public void addSubmunition(Projectile p) {
+		p.setFuse(p.fuse+this.fuse);
 		this.submunition.add(p);
 		this.addChild(p);
 	}
