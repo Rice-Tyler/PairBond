@@ -76,17 +76,17 @@ public class Projectile extends Sprite implements IEventListener {
 	public void setSubmunition(ArrayList<Projectile> submunition) {
 		this.submunition = submunition;
 	}
+	public void addSubmunition(Projectile p) {
+		this.submunition.add(p);
+		this.addChild(p);
+	}
 	@Override
 	public void handleEvent(Event event) {
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_EXPLODE) {
 			ProjectileEvent e = (ProjectileEvent)event;
-			if(e.getId() == this.getId())
+			if(e.getId() == this.getId()) {
 				this.setSolid(false);
 				this.setVisible(false);
-				for(int x = 0; x<submunition.size();x++) {
-					Projectile sub = submunition.get(x);
-					sub.setSolid(true);
-					sub.setVisible(true);
 			}
 		}
 	}

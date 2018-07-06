@@ -52,9 +52,11 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 	private boolean solid = false;
 	private Stack<Point> forces = new Stack<Point>();
 	private boolean NormalUp = false;
-	private boolean reverse = false;
+//	private boolean reverse = false;
 	private String hitboxShape = "Rect";
 	private Double radius = 0.0;
+	private Integer height = 0;
+	private Integer width = 0;
 
 	public boolean isNormalUp() {
 		return NormalUp;
@@ -160,6 +162,8 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 	public DisplayObject(String id, String fileName) {
 		this.setId(id);
 		this.setImage(fileName);
+		this.height = this.displayImage.getHeight();
+		this.width = this.displayImage.getWidth();
 	}
 
 	public void setId(String id) {
@@ -180,12 +184,18 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 	 * */
 	public int getUnscaledWidth() {
 		if(displayImage == null) return 0;
-		return displayImage.getWidth();
+		else if(this.width == 0) {
+			this.width = displayImage.getWidth();
+		}
+		return this.width;
 	}
 
 	public int getUnscaledHeight() {
 		if(displayImage == null) return 0;
-		return displayImage.getHeight();
+		else if(this.height == 0) {
+			this.height = displayImage.getHeight();
+		}
+		return this.height;
 	}
 
 	public BufferedImage getDisplayImage() {
@@ -555,5 +565,8 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 			}
 		}
 		return false;
+	}
+	public static void turn(double angle) {
+		
 	}
 }
