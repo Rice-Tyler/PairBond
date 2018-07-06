@@ -48,7 +48,7 @@ public class Prototype extends Game {
 	double angle = 90.0;
 
 	public Prototype() {
-		super("Prototype", 3000, 2000);
+		super("Prototype", 1500, 1000);
 		this.setDisplay();
 		this.Scale();
 		this.Position();
@@ -85,7 +85,7 @@ public class Prototype extends Game {
 				((AnimatedSprite)P).animate();
 			}
 		}
-		if(p.y>=(int)Math.floor(1930-((mario.getUnscaledHeight()*mario.getScaleY()))))onGround = true;
+		if(p.y>=(int)Math.floor(930-((mario.getUnscaledHeight()*mario.getScaleY()))))onGround = true;
 		if(pressedKeys.contains(KeyEvent.VK_LEFT)) {
 			move = true;
 			mario.push_force(-2,0);
@@ -106,7 +106,7 @@ public class Prototype extends Game {
 //		mario.eval_force();
 		if(!move)mario.xfriction();
 		if(onGround) {
-			mario.setPosition(new Point(p.x,(int)Math.floor((1930-(mario.getUnscaledHeight()*mario.getScaleY())))));
+			mario.setPosition(new Point(p.x,(int)Math.floor((930-(mario.getUnscaledHeight()*mario.getScaleY())))));
 			mario.setNormalUp(true);
 			jump = true;
 		}
