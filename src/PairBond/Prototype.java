@@ -132,7 +132,7 @@ public class Prototype extends Game {
 			Projectile P = (Projectile)Proj.getChild(x);
 			P.gravity();
 			System.out.printf("x: %d, %d \n",P.getxVelocity(),P.getxAcc());
-//			System.out.printf("y: %d, %d \n",P.getyVelocity(),P.getyAcc());
+			System.out.printf("y: %d, %d \n",P.getyVelocity(),P.getyAcc());
 			P.move();
 			double xvel = P.getxVelocity();
 			double yvel = P.getyVelocity();
@@ -143,10 +143,12 @@ public class Prototype extends Game {
 			for(int y = 0; y<this.getChildren().size();y++) {
 				if(P.collidesWith(this.getChild(y))) {
 					this.dispatchEvent(new ProjectileEvent(ProjectileEvent.PROJECTILE_EXPLODE,P,P.getId(),"s"));
+					x--;
 				}
 			}
 			if(P.getClock().getElapsedTime()>P.getFuse()) {
 				this.dispatchEvent(new ProjectileEvent(ProjectileEvent.PROJECTILE_EXPLODE,P,P.getId(),"s"));
+				x--;
 			}
 		}
 		
@@ -228,6 +230,11 @@ public class Prototype extends Game {
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_FIRED) {
 			System.out.println("fire"); 
 			Projectile f1 = new Projectile("f1");
+			Projectile f2 = new Projectile("f2");
+			f2.setSolid(false);
+			f2.setVisible(false);
+			f1.setFuse(30.0);
+			f1.addSubmunition(f2);
 			Point mp = mario.getPosition();
 			Point pp = mario.getPivotPoint();
 			f1.setPosition(new Point((int)(mp.x+pp.x),(int)(mp.y+pp.y-(f1.getUnscaledHeight()*f1.getScaleY()))));
@@ -246,6 +253,18 @@ public class Prototype extends Game {
 			ProjectileEvent e = (ProjectileEvent)event;
 			System.out.println("explode"); 
 			Projectile p = (Projectile)Proj.getChild(e.getId());
+			ArrayList<Projectile> psub = p.getSubmunition();
+			for(int z = 0;z<psub.size();z++) {
+				Projectile temp = psub.get(z);
+				
+				temp.setxVelocity(p.getxVelocity());
+				temp.setyVelocity(p.getyVelocity());
+				temp.setSolid(true);
+				temp.setVisible(true);
+				temp.setPosition(localToGlobal(temp.getPosition(),temp));
+				Proj.addChild(temp);
+				p.removeChild(temp);
+			}
 			Explosion exp = p.getExp();
 			exp.setPosition(localToGlobal(exp.getPosition(),exp));
 			EXP.addChild(exp);
