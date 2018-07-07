@@ -26,7 +26,7 @@ public class Projectile extends Sprite implements IEventListener {
 //		this.set_animation("spin");
 //		this.animate();
 //		clock = new GameClock();
-		this.exp=new Explosion(this.getId(),0,100,BlastType,60.0);
+		this.exp=new Explosion(this.getId(),3,100,BlastType,60.0);
 		this.setScale(.1);
 		this.setSolid(false);
 		this.setNormalUp(false);

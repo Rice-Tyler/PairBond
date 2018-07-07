@@ -31,6 +31,25 @@ public class Tank extends Sprite {
 			gun2.setPivotPoint(-5, -50);
 			this.addChild(gun2);
 			break;
+		case 3:
+			//this.readImage("Tank3.png");
+			Tankgun gun3 = new Tankgun("gun3", "Gun3.png");
+			gun3.setScale(0.8);
+			gun3.setScaleY(1.3);
+			gun3.setPosition(60, 10);
+			gun3.setPivotPoint(-5, -50);
+			this.addChild(gun3);
+			//setImage(readImage("Tank3.png"));
+			break;
+		case 4:
+			//this.readImage("Tank4.png");
+			Tankgun gun4 = new Tankgun("gun4", "Gun4.png");
+			gun4.setScale(0.8);
+			gun4.setScaleY(1.3);
+			gun4.setPosition(60, 10);
+			gun4.setPivotPoint(-5, -50);
+			this.addChild(gun4);
+			break;
 		default: 
 			this.readImage("Tank1.png");
 		}
@@ -52,6 +71,6 @@ public class Tank extends Sprite {
 		this.getChild(0).setRotation(rotation);
 	}
 	public void decreaseHealth(int i) {
-		this.health-=i;
+		this.setHealth(this.getHealth()-i);
 	}
 }

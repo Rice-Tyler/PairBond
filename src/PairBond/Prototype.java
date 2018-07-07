@@ -2,6 +2,7 @@
 package PairBond;
 
 import java.awt.Color;
+import java.awt.Font;
 //import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -193,7 +194,10 @@ public class Prototype extends Game {
 			for(int y = 0; y<PlayerSelect.size();y++) {
 				Tank t = (Tank) PlayerSelect.get(y);
 				if(e.collidesWith(t)) {
+					System.out.println("hit");
+					System.out.println(e.getDamage());
 					t.decreaseHealth(e.getDamage());
+					System.out.printf("%s:%d \n",t.getId(),t.getHealth());
 				}
 			}
 			e.incCount();
@@ -211,8 +215,9 @@ public class Prototype extends Game {
 		
 		String t1 = String.format("%d / 100", tank1.getHealth());
 		String t2 = String.format("%d / 100", tank2.getHealth());
-		g.drawString(t1,40,40);
-		g.drawString(t1,1000,40);
+		g.setFont(new Font("TimesRoman", Font.PLAIN, 100));
+		g.drawString(t1,40,80);
+		g.drawString(t2,1100,80);
 		Graphics2D g2 = (Graphics2D)g;
 		if(EXP!=null) {
 			for(int i = 0; i<EXP.getChildren().size();i++) {
