@@ -524,7 +524,7 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 		}
 	}
 	public void gravity() {
-		this.forces.push(new Point(0,(int)(1*this.mass)));
+		this.forces.push(new Point(0,(int)(1)));
 	}
 	public void push_force(Point p) {
 		this.forces.push(p);
@@ -586,7 +586,8 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 		double mag = Math.sqrt(Math.pow(this.getxVelocity(),2) + Math.pow(this.getyVelocity(),2));
 		System.out.printf("total V: %f \n", mag);
 		ang += angle;
-		this.xVelocity = (int)(mag* Math.cos(ang)); 
+		if(this.xVelocity <0)this.xVelocity = -(int)(mag* Math.cos(ang)); 
+		else this.xVelocity = (int)(mag* Math.cos(ang)); 
 		this.yVelocity = (int)(mag* Math.sin(ang)); 
 	}
 }

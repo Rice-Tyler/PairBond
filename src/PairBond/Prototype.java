@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import Sprites.Coin;
 import Sprites.Mario;
 import Sprites.Platform;
+import Sprites.Tank;
 import edu.virginia.engine.animation.Tween;
 import edu.virginia.engine.animation.TweenJuggler;
 //import edu.virginia.engine.animation.TweenTransitions;
@@ -33,21 +34,25 @@ import edu.virginia.engine.events.TweenEvent;
 import edu.virginia.engine.sound.SoundManager;
 
 public class Prototype extends Game {
-	Sprite mario = new Sprite("mario","mario.png");
-	Mario m2 = new Mario("m2");
+	Tank tank1 = new Tank("tank1", "Tank2.png", 2);
+	Tank tank2 = new Tank("tank2","Tank1.png",1);
 	SoundManager SM = new SoundManager();
 	TweenJuggler TJ = new TweenJuggler();
 	Platform p1 = new Platform("p1");
 	DisplayObjectContainer Plats = new DisplayObjectContainer("Plats");
 	DisplayObjectContainer Proj = new DisplayObjectContainer("Proj");
+	DisplayObjectContainer Tanks = new DisplayObjectContainer("Tanks");
 	/* Container to hold Explosion Hitboxes*/
 	DisplayObjectContainer EXP = new DisplayObjectContainer("EXP");
 	boolean jump = false;
+	boolean Switch = true;
 	boolean fire = true;
 	public boolean onGround = false;
 	int f_count = 181;
 	double velocity = 25.0;
 	double angle = 90.0;
+	int player = 0;
+	int Switch_count = 1;
 
 	public Prototype() {
 		super("Prototype", 1500, 1500);
@@ -57,25 +62,24 @@ public class Prototype extends Game {
 		this.findCenter();
 		this.addEventListener(this, ProjectileEvent.PROJECTILE_FIRED);
 		this.addEventListener(this, ProjectileEvent.PROJECTILE_EXPLODE);
-		mario.addEventListener(this, CollisionEvent.COLLISION);
+		tank1.addEventListener(this, CollisionEvent.COLLISION);
 		
-		mario.setyMax(100);
-		SM.loadSoundEffect("jump", "resources/jump.wav");
-		SM.loadMusic("music","resources/mario_music.wav");
-		this.dispatchEvent(new SoundEvent(SoundEvent.TRIGGER_MUSIC,this,"music"));
+		tank1.setyMax(100);
+		
+//		 SM.loadSoundEffect("jump", "resources/jump.wav");
+//		SM.loadMusic("music","resources/mario_music.wav");
+//		this.dispatchEvent(new SoundEvent(SoundEvent.TRIGGER_MUSIC,this,"music"));
 		System.out.println(this.getDispatchList().keySet());
 	}
 	
 	@Override
 	public void update(ArrayList<Integer> pressedKeys) {
-//		mario.animate();
-		mario.setxAcc(0);
-		Point p = mario.getPosition();
-		onGround = false;
-		boolean move = false;
+		ArrayList<DisplayObject> PlayerSelect = Tanks.getChildren();
+//		tank1.animate();
+		tank1.setxAcc(0);
+		tank2.setxAcc(0);
+		Point p = tank1.getPosition();
 		
-		
-		mario.gravity();
 		for(int x = 0; x<Proj.getChildren().size();x++) {
 //			System.out.println("p");
 			DisplayObject P = Proj.getChild(x);
@@ -87,38 +91,48 @@ public class Prototype extends Game {
 				((AnimatedSprite)P).animate();
 			}
 		}
-		if(p.y>=(int)Math.floor(930-((mario.getUnscaledHeight()*mario.getScaleY()))))onGround = true;
+		Tank currPlayer = (Tank)PlayerSelect.get(player);
+		if(p.y>=(int)Math.floor(930-((tank1.getUnscaledHeight()*tank1.getScaleY()))))onGround = true;
 		if(pressedKeys.contains(KeyEvent.VK_LEFT)) {
-			move = true;
-			mario.push_force(-2,0);
+			currPlayer.move = true;
+			currPlayer.push_force(-2,0);
 		}
 		if(pressedKeys.contains(KeyEvent.VK_RIGHT)) {
-			move = true;
-			mario.push_force(2,0);
+			currPlayer.move = true;
+			currPlayer.push_force(2,0);
 		}
-		if(pressedKeys.contains(KeyEvent.VK_Q) && angle < 180)angle+=.5;
-		if(pressedKeys.contains(KeyEvent.VK_W) && angle > 0  )angle-=.5;
+		if(pressedKeys.contains(KeyEvent.VK_Q) && angle < 180) {
+			angle+=.5;
+			currPlayer.setGunRotation(currPlayer.getGunRotation()-Math.toRadians(.5));
+		}
+		if(pressedKeys.contains(KeyEvent.VK_W) && angle > 0  ) {
+			angle-=.5;
+			currPlayer.setGunRotation(currPlayer.getGunRotation()+Math.toRadians(.5));
+		}
 		if(pressedKeys.contains(KeyEvent.VK_A) && velocity < 50)velocity+=.5;
 		if(pressedKeys.contains(KeyEvent.VK_S) && velocity > 0  )velocity-=.5;
-//		
-		Double theta = p1.getRotation();
-		if(pressedKeys.contains(KeyEvent.VK_Q))theta+=.3;
-		if(pressedKeys.contains(KeyEvent.VK_W))theta-=.3;
-		p1.setRotation(theta);
-//		mario.eval_force();
-		if(!move)mario.xfriction();
-		if(onGround) {
-			mario.setPosition(new Point(p.x,(int)Math.floor((930-(mario.getUnscaledHeight()*mario.getScaleY())))));
-			mario.setNormalUp(true);
-			jump = true;
+		if(pressedKeys.contains(KeyEvent.VK_ENTER) && Switch){
+			player = (player+1)%2;
+			System.out.println(PlayerSelect.get(player).getId());
+			Switch = false;
+			Switch_count++;
 		}
+		if(Switch_count==0) {
+			Switch = true;
+		}
+		else Switch_count = (Switch_count+1 )% 15;
+//		Double theta = p1.getRotation();
+//		if(pressedKeys.contains(KeyEvent.VK_Q))theta+=.3;
+//		if(pressedKeys.contains(KeyEvent.VK_W))theta-=.3;
+//		p1.setRotation(theta);
+//		tank1.eval_force();
 		
 		if(pressedKeys.contains(KeyEvent.VK_SPACE) && fire) {
 			fire = false;
 			f_count = 0;
 			System.out.println("f");
 			this.dispatchEvent(new ProjectileEvent(ProjectileEvent.PROJECTILE_FIRED,this,"Fire", "s"));
-//			mario.push_force(0,-50);
+//			tank1.push_force(0,-50);
 //				this.dispatchEvent(new SoundEvent(SoundEvent.TRIGGER_SOUND_EFFECT,this,"jump"));
 		}	
 		if(f_count<=50) {
@@ -128,7 +142,6 @@ public class Prototype extends Game {
 			fire = true;
 //			System.out.println("f");
 		}
-		mario.move();
 		for(int x = 0; x<Proj.getChildren().size();x++) {
 //			System.out.println("p");
 			Projectile P = (Projectile)Proj.getChild(x);
@@ -143,8 +156,8 @@ public class Prototype extends Game {
 			if(yvel>0)thetap+=Math.PI;
 			P.findCenter();
 			P.setRotation(thetap);
-			for(int y = 0; y<this.getChildren().size();y++) {
-				if(P.collidesWith(this.getChild(y))) {
+			for(int y = 0; y<Tanks.getChildren().size();y++) {
+				if(P.collidesWith(Tanks.getChild(y))) {
 					this.dispatchEvent(new ProjectileEvent(ProjectileEvent.PROJECTILE_EXPLODE,P,P.getId(),"s"));
 					x--;
 				}
@@ -155,11 +168,38 @@ public class Prototype extends Game {
 				x--;
 			}
 		}
+		for(int j =0;j<PlayerSelect.size();j++) {
+			Tank t1 = (Tank)PlayerSelect.get(j);
+//			t1.gravity();
+			t1.onGround = false;
+			t1.move = false;
+			if(!t1.move)t1.xfriction();
+			if(t1.onGround) {
+				t1.setPosition(new Point(p.x,(int)Math.floor((930-(t1.getUnscaledHeight()*t1.getScaleY())))));
+				t1.setNormalUp(true);
+				jump = true;
+			}
+			t1.move();
+			for(int x = 0;x<Plats.getChildren().size();x++) {
+				DisplayObject c = Plats.getChild(x);
+				if(t1.collidesWith(c)) {
+				t1.dispatchEvent(new CollisionEvent(CollisionEvent.COLLISION,t1,c));
+				}
+			}
+		}
 		
-		for(int x = 0;x<Plats.getChildren().size();x++) {
-			DisplayObject c = Plats.getChild(x);
-			if(mario.collidesWith(c)) {
-			mario.dispatchEvent(new CollisionEvent(CollisionEvent.COLLISION,mario,c));
+		for(int x = 0; x<EXP.getChildren().size();x++) {
+			Explosion e = (Explosion)EXP.getChild(x);
+			for(int y = 0; y<PlayerSelect.size();y++) {
+				Tank t = (Tank) PlayerSelect.get(y);
+				if(e.collidesWith(t)) {
+					t.decreaseHealth(e.getDamage());
+				}
+			}
+			e.incCount();
+			if(e.getCount()>=e.getDuration()) {
+				EXP.removeChild(e);
+				x--;
 			}
 		}
 		TJ.nextFrame();
@@ -168,29 +208,39 @@ public class Prototype extends Game {
 	@Override 
 	public void draw(Graphics g) {
 		if(this!=null)super.draw(g);
+		
+		String t1 = String.format("%d / 100", tank1.getHealth());
+		String t2 = String.format("%d / 100", tank2.getHealth());
+		g.drawString(t1,40,40);
+		g.drawString(t1,1000,40);
 		Graphics2D g2 = (Graphics2D)g;
 		if(EXP!=null) {
 			for(int i = 0; i<EXP.getChildren().size();i++) {
 				g2.setColor(Color.RED);
 				g2.draw(EXP.getChild(i).getGlobalHitbox());
+				
 			}
 		}
-		g2.draw(mario.getGlobalHitbox());
+		g2.draw(tank1.getGlobalHitbox());
 	}
 	@Override
 	public void setDisplay() {
-		this.addChild(mario);
+		this.addChild(Tanks);
+		Tanks.addChild(tank1);
+		Tanks.addChild(tank2);
 //		this.addChild(Plats);
 //		Plats.addChild(p1);
 		this.addChild(Proj);
 //		Plats.addChild(p4);
+//		this.addChild(EXP);
 	}
 	public void Scale() {
-		mario.setScale(.50);
+		tank1.setScale(1.00);
 		p1.setScaleX(5.0);
 	}
 	public void Position() {
-		mario.setPosition(400,500);
+		tank1.setPosition(400,500);
+		tank2.setPosition(600, 500);
 		p1.setPosition(0, 750);
 	}
 	@Override
@@ -253,10 +303,12 @@ public class Prototype extends Game {
 			f1.addSubmunition(f2);
 			f1.addSubmunition(f3);
 			f1.addSubmunition(f4);
-			mario.findCenter();
-			Point mp = mario.getPosition();
-//			Point pp = mario.getPivotPoint();
-			f1.setPosition(new Point((int)(mp.x+((mario.getUnscaledWidth()*mario.getScaleX())/4)),(int)(mp.y-(f1.getUnscaledHeight()*f1.getScaleY()))));
+//			tank1.findCenter();
+			Point mp = tank1.getPosition();
+//			Point pp = tank1.getPivotPoint();
+			DisplayObject barrel = tank1.getChild(0);
+			Point Barrelpoint = localToGlobal(barrel.getPosition(),barrel);
+			f1.setPosition(new Point(Barrelpoint.x,(int)(Barrelpoint.y-(barrel.getUnscaledHeight()*barrel.getScaleY()))));
 			
 			double rad = Math.toRadians(angle);
 			int xv = (int)(velocity*Math.cos(rad));
@@ -291,6 +343,7 @@ public class Prototype extends Game {
 				temp.setSolid(true);
 				temp.setVisible(true);
 				temp.setPosition(localToGlobal(temp.getPosition(),temp));
+				temp.getExp().setPosition(localToGlobal(temp.getExp().getPosition(),temp.getExp()));
 				Proj.addChild(temp);
 				p.removeChild(temp);
 			}

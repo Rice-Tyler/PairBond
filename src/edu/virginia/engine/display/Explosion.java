@@ -1,8 +1,9 @@
 package edu.virginia.engine.display;
 
 public class Explosion extends DisplayObject {
-	int damage = 0;
-	int duration = 0;
+	int damage = 5;
+	int duration = 5;
+	int count = 0;
 	public Explosion(String id, String fileName, int damage, int duration,String blastType, double radius) {
 		super(id, fileName);
 		this.damage = damage;
@@ -16,6 +17,15 @@ public class Explosion extends DisplayObject {
 		this.duration = duration;
 		this.setHitboxShape(blastType);
 		this.setRadius(radius);
+	}
+	public int getCount() {
+		return count;
+	}
+	public void setCount(int count) {
+		this.count = count;
+	}
+	public void incCount() {
+		this.count++;
 	}
 	public int getDamage() {
 		return damage;
