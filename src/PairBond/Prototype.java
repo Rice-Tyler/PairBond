@@ -147,7 +147,6 @@ public class Prototype extends Game {
 			if(explosion_count == 10) {
 				explosion_count = 0;
 			}
-			System.out.println(explosion_count);
 		}
 
 		if(f_count<=50) {
