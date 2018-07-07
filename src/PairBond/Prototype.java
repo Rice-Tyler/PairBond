@@ -29,6 +29,7 @@ import edu.virginia.engine.display.Sprite;
 import edu.virginia.engine.events.CoinEvent;
 import edu.virginia.engine.events.CollisionEvent;
 import edu.virginia.engine.events.Event;
+import edu.virginia.engine.events.PlayerEvent;
 import edu.virginia.engine.events.ProjectileEvent;
 import edu.virginia.engine.events.SoundEvent;
 import edu.virginia.engine.events.TweenEvent;
@@ -48,13 +49,14 @@ public class Prototype extends Game {
 	boolean jump = false;
 	boolean Switch = true;
 	boolean fire = true;
+	boolean pause_movement = false;
 	public boolean onGround = false;
 	int f_count = 181;
 	double velocity = 25.0;
 	double angle = 90.0;
 	int player = 0;
 	int Switch_count = 1;
-
+	ArrayList<DisplayObject> PlayerSelect = Tanks.getChildren();
 	public Prototype() {
 		super("Prototype", 1500, 1500);
 		this.setDisplay();
@@ -63,6 +65,8 @@ public class Prototype extends Game {
 		this.findCenter();
 		this.addEventListener(this, ProjectileEvent.PROJECTILE_FIRED);
 		this.addEventListener(this, ProjectileEvent.PROJECTILE_EXPLODE);
+		this.addEventListener(this, PlayerEvent.FIRE);
+		this.addEventListener(this, PlayerEvent.TURN_END);
 		tank1.addEventListener(this, CollisionEvent.COLLISION);
 		
 		tank1.setyMax(100);
@@ -70,12 +74,12 @@ public class Prototype extends Game {
 //		 SM.loadSoundEffect("jump", "resources/jump.wav");
 //		SM.loadMusic("music","resources/mario_music.wav");
 //		this.dispatchEvent(new SoundEvent(SoundEvent.TRIGGER_MUSIC,this,"music"));
-		System.out.println(this.getDispatchList().keySet());
+//		System.out.println(this.getDispatchList().keySet());
 	}
 	
 	@Override
 	public void update(ArrayList<Integer> pressedKeys) {
-		ArrayList<DisplayObject> PlayerSelect = Tanks.getChildren();
+		PlayerSelect = Tanks.getChildren();
 //		tank1.animate();
 		tank1.setxAcc(0);
 		tank2.setxAcc(0);
@@ -94,34 +98,26 @@ public class Prototype extends Game {
 		}
 		Tank currPlayer = (Tank)PlayerSelect.get(player);
 		if(p.y>=(int)Math.floor(930-((tank1.getUnscaledHeight()*tank1.getScaleY()))))onGround = true;
-		if(pressedKeys.contains(KeyEvent.VK_LEFT)) {
-			currPlayer.move = true;
-			currPlayer.push_force(-2,0);
+		if(!pause_movement) {
+			if(pressedKeys.contains(KeyEvent.VK_LEFT)) {
+				currPlayer.move = true;
+				currPlayer.push_force(-2,0);
+			}
+			if(pressedKeys.contains(KeyEvent.VK_RIGHT)) {
+				currPlayer.move = true;
+				currPlayer.push_force(2,0);
+			}
+			if(pressedKeys.contains(KeyEvent.VK_Q) && currPlayer.angle < 180) {
+				currPlayer.angle+=.5;
+				currPlayer.setGunRotation(currPlayer.getGunRotation()-Math.toRadians(.5));
+			}
+			if(pressedKeys.contains(KeyEvent.VK_W) && currPlayer.angle > 0  ) {
+				currPlayer.angle-=.5;
+				currPlayer.setGunRotation(currPlayer.getGunRotation()+Math.toRadians(.5));
+			}
+			if(pressedKeys.contains(KeyEvent.VK_A) && velocity < 50)velocity+=.5;
+			if(pressedKeys.contains(KeyEvent.VK_S) && velocity > 0  )velocity-=.5;
 		}
-		if(pressedKeys.contains(KeyEvent.VK_RIGHT)) {
-			currPlayer.move = true;
-			currPlayer.push_force(2,0);
-		}
-		if(pressedKeys.contains(KeyEvent.VK_Q) && angle < 180) {
-			angle+=.5;
-			currPlayer.setGunRotation(currPlayer.getGunRotation()-Math.toRadians(.5));
-		}
-		if(pressedKeys.contains(KeyEvent.VK_W) && angle > 0  ) {
-			angle-=.5;
-			currPlayer.setGunRotation(currPlayer.getGunRotation()+Math.toRadians(.5));
-		}
-		if(pressedKeys.contains(KeyEvent.VK_A) && velocity < 50)velocity+=.5;
-		if(pressedKeys.contains(KeyEvent.VK_S) && velocity > 0  )velocity-=.5;
-		if(pressedKeys.contains(KeyEvent.VK_ENTER) && Switch){
-			player = (player+1)%2;
-			System.out.println(PlayerSelect.get(player).getId());
-			Switch = false;
-			Switch_count++;
-		}
-		if(Switch_count==0) {
-			Switch = true;
-		}
-		else Switch_count = (Switch_count+1 )% 15;
 //		Double theta = p1.getRotation();
 //		if(pressedKeys.contains(KeyEvent.VK_Q))theta+=.3;
 //		if(pressedKeys.contains(KeyEvent.VK_W))theta-=.3;
@@ -131,7 +127,7 @@ public class Prototype extends Game {
 		if(pressedKeys.contains(KeyEvent.VK_SPACE) && fire) {
 			fire = false;
 			f_count = 0;
-			System.out.println("f");
+//			System.out.println("f");
 			this.dispatchEvent(new ProjectileEvent(ProjectileEvent.PROJECTILE_FIRED,this,"Fire", "s"));
 //			tank1.push_force(0,-50);
 //				this.dispatchEvent(new SoundEvent(SoundEvent.TRIGGER_SOUND_EFFECT,this,"jump"));
@@ -148,8 +144,8 @@ public class Prototype extends Game {
 			Projectile P = (Projectile)Proj.getChild(x);
 			P.gravity();
 //			System.out.printf("%s: %s \n", P.getId(), P.getPosition());
-			System.out.printf("%s:: x: %d, %d  ",P.getId(), P.getxVelocity(),P.getxAcc());
-			System.out.printf("y: %d, %d \n",P.getyVelocity(),P.getyAcc());
+//			System.out.printf("%s:: x: %d, %d  ",P.getId(), P.getxVelocity(),P.getxAcc());
+//			System.out.printf("y: %d, %d \n",P.getyVelocity(),P.getyAcc());
 			P.move();
 			double xvel = P.getxVelocity();
 			double yvel = P.getyVelocity();
@@ -195,9 +191,9 @@ public class Prototype extends Game {
 				Tank t = (Tank) PlayerSelect.get(y);
 				if(e.collidesWith(t)) {
 					System.out.println("hit");
-					System.out.println(e.getDamage());
+//					System.out.println(e.getDamage());
 					t.decreaseHealth(e.getDamage());
-					System.out.printf("%s:%d \n",t.getId(),t.getHealth());
+//					System.out.printf("%s:%d \n",t.getId(),t.getHealth());
 				}
 			}
 			e.incCount();
@@ -309,21 +305,22 @@ public class Prototype extends Game {
 			f1.addSubmunition(f3);
 			f1.addSubmunition(f4);
 //			tank1.findCenter();
-			Point mp = tank1.getPosition();
+			Tank t1 = (Tank)PlayerSelect.get(player);
+			Point mp = t1.getPosition();
 //			Point pp = tank1.getPivotPoint();
-			DisplayObject barrel = tank1.getChild(0);
+			DisplayObject barrel = t1.getChild(0);
 			Point Barrelpoint = localToGlobal(barrel.getPosition(),barrel);
 			f1.setPosition(new Point(Barrelpoint.x,(int)(Barrelpoint.y-(barrel.getUnscaledHeight()*barrel.getScaleY()))));
 			
-			double rad = Math.toRadians(angle);
+			double rad = Math.toRadians(t1.angle);
 			int xv = (int)(velocity*Math.cos(rad));
 			int yv = -(int)(velocity*Math.sin(rad));
 //			System.out.println(xv);
 //			System.out.println(yv);
 			f1.push_force(xv,yv);
 			this.addEventListener(f1, ProjectileEvent.PROJECTILE_EXPLODE);
-			
 			Proj.addChild(f1);
+			this.dispatchEvent(new PlayerEvent(this,PlayerEvent.FIRE));
 		}
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_EXPLODE) {
 			ProjectileEvent e = (ProjectileEvent)event;
@@ -356,7 +353,16 @@ public class Prototype extends Game {
 			exp.setPosition(localToGlobal(exp.getPosition(),exp));
 			EXP.addChild(exp);
 			Proj.removeChildById(e.getId());
-			
+			if(Proj.getChildren().size()<=0) {
+				this.dispatchEvent(new PlayerEvent(this, PlayerEvent.TURN_END));
+			}
+		}
+		if(event.getEventType() == PlayerEvent.FIRE) {
+			pause_movement = true;
+		}
+		if(event.getEventType() == PlayerEvent.TURN_END) {
+			player=(player+1)%2;
+			pause_movement = false;
 		}
 	}
 	public static void main(String[] args) {

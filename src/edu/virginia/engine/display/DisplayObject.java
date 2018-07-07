@@ -581,10 +581,10 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 			 ang = Math.tan(this.getyVelocity()/this.getxVelocity());
 		}
 		angle = Math.toRadians(angle);
-		System.out.printf("init: %f,",ang);
-		System.out.printf("turn by: %f ", angle);
+//		System.out.printf("init: %f,",ang);
+//		System.out.printf("turn by: %f ", angle);
 		double mag = Math.sqrt(Math.pow(this.getxVelocity(),2) + Math.pow(this.getyVelocity(),2));
-		System.out.printf("total V: %f \n", mag);
+//		System.out.printf("total V: %f \n", mag);
 		ang += angle;
 		if(this.xVelocity <0)this.xVelocity = -(int)(mag* Math.cos(ang)); 
 		else this.xVelocity = (int)(mag* Math.cos(ang)); 

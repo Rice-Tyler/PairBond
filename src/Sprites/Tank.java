@@ -9,6 +9,7 @@ public class Tank extends Sprite {
 	private int health = 100;
 	public boolean onGround = true; 
 	public boolean move = false;
+	public double angle = 90.0;
 	public Tank(String id, String filename, int n) {
 		super(id, filename);
 		switch (n) {
