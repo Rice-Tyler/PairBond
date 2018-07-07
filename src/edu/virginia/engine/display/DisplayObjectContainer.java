@@ -13,12 +13,10 @@ public class DisplayObjectContainer extends DisplayObject {
 
 	public DisplayObjectContainer(String id, String fileName) {
 		super(id, fileName);
-		this.children = new ArrayList<DisplayObject>();
 	}
 
 	public DisplayObjectContainer(String id) {
 		super(id);
-		this.children = new ArrayList<DisplayObject>();
 	}
 	
 	public DisplayObjectContainer(String id, ArrayList<DisplayObject> children) {
@@ -87,10 +85,6 @@ public class DisplayObjectContainer extends DisplayObject {
 	
 	public void removeChildAtIndex(int x) {
 		this.children.remove(x);
-	}
-	public boolean removeChildById(String id) {
-		DisplayObject d = new DisplayObject(id);
-		return this.children.remove(d);
 	}
 	
 	public void removeAll() {

@@ -8,11 +8,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.awt.Point;
 import java.awt.Rectangle;
-
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
-import java.awt.geom.Ellipse2D;
 import java.awt.AlphaComposite;
 import java.awt.Composite;
 import java.util.Stack;
@@ -42,8 +40,8 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 	private Integer yVelocity = 0;
 	private Integer xAcc = 0;
 	private Integer yAcc = 0;
-	private Integer xMax = 10;
-	private Integer yMax = 10;
+	private Integer xMax = 0;
+	private Integer yMax = 0;
 	private Double friction = .90;
 	private Double mass = 1.0;
 	private DisplayObjectContainer parent = null;
@@ -52,11 +50,7 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 	private boolean solid = false;
 	private Stack<Point> forces = new Stack<Point>();
 	private boolean NormalUp = false;
-//	private boolean reverse = false;
-	private String hitboxShape = "Rect";
-	private Double radius = 0.0;
-	private Integer height = 0;
-	private Integer width = 0;
+	private boolean reverse = false;
 
 	public boolean isNormalUp() {
 		return NormalUp;
@@ -162,8 +156,6 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 	public DisplayObject(String id, String fileName) {
 		this.setId(id);
 		this.setImage(fileName);
-		this.height = this.displayImage.getHeight();
-		this.width = this.displayImage.getWidth();
 	}
 
 	public void setId(String id) {
@@ -184,18 +176,12 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 	 * */
 	public int getUnscaledWidth() {
 		if(displayImage == null) return 0;
-		else if(this.width == 0) {
-			this.width = displayImage.getWidth();
-		}
-		return this.width;
+		return displayImage.getWidth();
 	}
 
 	public int getUnscaledHeight() {
 		if(displayImage == null) return 0;
-		else if(this.height == 0) {
-			this.height = displayImage.getHeight();
-		}
-		return this.height;
+		return displayImage.getHeight();
 	}
 
 	public BufferedImage getDisplayImage() {
@@ -291,18 +277,6 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 	}
 	public void setSolid(boolean solid) {
 		this.solid = solid;
-	}
-	public String getHitboxShape() {
-		return hitboxShape;
-	}
-	public void setHitboxShape(String hitboxShape) {
-		this.hitboxShape = hitboxShape;
-	}
-	public Double getRadius() {
-		return radius;
-	}
-	public void setRadius(Double radius) {
-		this.radius = radius;
 	}
 	/**
 	 * Invoked on every frame before drawing. Used to update this display
@@ -448,13 +422,11 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 		return at;
 	}
 	public Shape getGlobalHitbox(){
-		if(this.hitboxShape == "Round")return getGlobalTransform().createTransformedShape(new Ellipse2D.Double(0.0,0.0,radius,radius));
-		else return getGlobalTransform().createTransformedShape(new Rectangle(0, 0, getUnscaledWidth(), getUnscaledHeight()));
+		return getGlobalTransform().createTransformedShape(new Rectangle(0, 0, getUnscaledWidth(), getUnscaledHeight()));
 	}
 		
 	public Shape getLocalHitbox(){
-		if(this.hitboxShape == "Round")return getLocalTransform().createTransformedShape(new Ellipse2D.Double(0.0,0.0,radius,radius));
-		else return getLocalTransform().createTransformedShape(new Rectangle(0, 0, getUnscaledWidth(), getUnscaledHeight()));
+		return getLocalTransform().createTransformedShape(new Rectangle(0, 0, getUnscaledWidth(), getUnscaledHeight()));
 	}
 	public Stack<Point> getForces() {
 		return forces;
@@ -496,12 +468,10 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 		if(Math.abs(xVelocity)>xMax) {
 			if(xVelocity>0)xVelocity = xMax;
 			if(xVelocity<0)xVelocity = -xMax;
-//			System.out.printf("%s: setx \n",this.getId());
 		}
 		if(Math.abs(yVelocity)>yMax) {
 			if(yVelocity>0)yVelocity = yMax;
 			if(yVelocity<0)yVelocity = -yMax;
-//			System.out.printf("%s: sety \n",this.getId());
 		}
 		this.position = new Point(this.getPosition().x+xVelocity,this.getPosition().y+yVelocity);
 	}
@@ -513,18 +483,17 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 		while(!this.forces.empty()) {
 			Point p = forces.pop();
 			total = new Point(total.x+p.x,total.y+p.y);
+			System.out.printf("%s:%s",this.getId(),total);
 		}
-		
 		this.xAcc = (int) (total.x/this.mass);
 		this.yAcc = (int) (total.y/this.mass);
 		if(NormalUp) {
-//			System.out.printf("%s: Normal \n",this.getId());
 			this.yVelocity=0;
 			this.yAcc=0;
 		}
 	}
 	public void gravity() {
-		this.forces.push(new Point(0,(int)(1*this.mass)));
+		this.forces.push(new Point(0,(int)(4*this.mass)));
 	}
 	public void push_force(Point p) {
 		this.forces.push(p);
@@ -565,28 +534,5 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 			}
 		}
 		return false;
-	}
-	public void turn(double angle) {
-		
-		Double ang = 0.0;
-		if(this.getxVelocity()==0.0) {
-			if(this.yVelocity>0) {
-				ang = Math.PI/2;
-			}
-			else {
-				ang = - Math.PI/2;
-			}
-		}
-		else {
-			 ang = Math.tan(this.getyVelocity()/this.getxVelocity());
-		}
-		angle = Math.toRadians(angle);
-		System.out.printf("init: %f,",ang);
-		System.out.printf("turn by: %f ", angle);
-		double mag = Math.sqrt(Math.pow(this.getxVelocity(),2) + Math.pow(this.getyVelocity(),2));
-		System.out.printf("total V: %f \n", mag);
-		ang += angle;
-		this.xVelocity = (int)(mag* Math.cos(ang)); 
-		this.yVelocity = (int)(mag* Math.sin(ang)); 
 	}
 }

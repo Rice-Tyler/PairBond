@@ -6,14 +6,6 @@ import java.util.HashMap;
 public class EventDispatcher implements IEventDispatcher {
 	private HashMap<String, ArrayList<IEventListener>> dispatchList = new HashMap<String, ArrayList<IEventListener>>();
 
-	public HashMap<String, ArrayList<IEventListener>> getDispatchList() {
-		return dispatchList;
-	}
-
-	public void setDispatchList(HashMap<String, ArrayList<IEventListener>> dispatchList) {
-		this.dispatchList = dispatchList;
-	}
-
 	@Override
 	public void addEventListener(IEventListener Listener, String eventType) {
 		if (dispatchList.containsKey(eventType)){
