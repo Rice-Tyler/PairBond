@@ -18,7 +18,7 @@ public class AnimatedSprite extends Sprite {
 	private Integer count = 1;
 	private Integer currentAnimation = 0;
 	private Integer trim =5;
-	
+	private boolean paused = true;
 	
 	private HashMap<String,Integer[]> animations = new HashMap<String,Integer[]>(); 
 	private BufferedImage[] sprites = new BufferedImage[rows * cols];
@@ -44,6 +44,13 @@ public class AnimatedSprite extends Sprite {
 	}
 	public void setWidth(Integer width) {
 		this.width = width;
+	}
+
+	public boolean isPaused() {
+		return this.paused;
+	}
+	public void setPause(boolean b) {
+		this.paused = b;
 	}
 	public Integer getHeight() {
 		return height;

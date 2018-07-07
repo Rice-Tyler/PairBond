@@ -10,8 +10,10 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 import Sprites.Coin;
+import Sprites.ExplosionSprite;
 import Sprites.Mario;
 import Sprites.Platform;
+import Sprites.Tank;
 import edu.virginia.engine.animation.Tween;
 import edu.virginia.engine.animation.TweenJuggler;
 //import edu.virginia.engine.animation.TweenTransitions;
@@ -33,7 +35,8 @@ import edu.virginia.engine.events.TweenEvent;
 import edu.virginia.engine.sound.SoundManager;
 
 public class Prototype extends Game {
-	Sprite mario = new Sprite("mario","mario.png");
+	Tank mario = new Tank("mario","Tank4.png", 4);
+	ExplosionSprite explosion = new ExplosionSprite("explosion", "Explosion.png", 512, 512, 4, 4);
 	Mario m2 = new Mario("m2");
 	SoundManager SM = new SoundManager();
 	TweenJuggler TJ = new TweenJuggler();
@@ -46,11 +49,12 @@ public class Prototype extends Game {
 	boolean fire = true;
 	public boolean onGround = false;
 	int f_count = 181;
+	int explosion_count = 0;
 	double velocity = 25.0;
 	double angle = 90.0;
 
 	public Prototype() {
-		super("Prototype", 1500, 1500);
+		super("Prototype", 1000, 600);
 		this.setDisplay();
 		this.Scale();
 		this.Position();
@@ -69,6 +73,12 @@ public class Prototype extends Game {
 	@Override
 	public void update(ArrayList<Integer> pressedKeys) {
 //		mario.animate();
+		if(!explosion.isPaused()) {
+			explosion.animate();
+			if(explosion.getCurrent() == 13) {
+				explosion.setPause(true);
+			}
+		}
 		mario.setxAcc(0);
 		Point p = mario.getPosition();
 		onGround = false;
@@ -87,17 +97,25 @@ public class Prototype extends Game {
 				((AnimatedSprite)P).animate();
 			}
 		}
-		if(p.y>=(int)Math.floor(930-((mario.getUnscaledHeight()*mario.getScaleY()))))onGround = true;
+		if(p.y>=(int)Math.floor(530-((mario.getUnscaledHeight()*mario.getScaleY()))))onGround = true;
 		if(pressedKeys.contains(KeyEvent.VK_LEFT)) {
 			move = true;
-			mario.push_force(-2,0);
+			//mario.push_force(-2,0);
+			mario.setPosition(mario.getPosition().x - 3, mario.getPosition().y);
 		}
 		if(pressedKeys.contains(KeyEvent.VK_RIGHT)) {
 			move = true;
-			mario.push_force(2,0);
+			//mario.push_force(2,0);
+			mario.setPosition(mario.getPosition().x + 3, mario.getPosition().y);
 		}
-		if(pressedKeys.contains(KeyEvent.VK_Q) && angle < 180)angle+=.5;
-		if(pressedKeys.contains(KeyEvent.VK_W) && angle > 0  )angle-=.5;
+		if(pressedKeys.contains(KeyEvent.VK_Q) && angle < 180) { 
+			angle+=.5;
+			mario.setGunRotation(mario.getGunRotation() + Math.toRadians(0.5));
+		}
+		if(pressedKeys.contains(KeyEvent.VK_W) && angle > 0  ) {
+			angle-=.5;
+			mario.setGunRotation(mario.getGunRotation() - Math.toRadians(0.5));
+		}
 		if(pressedKeys.contains(KeyEvent.VK_A) && velocity < 50)velocity+=.5;
 		if(pressedKeys.contains(KeyEvent.VK_S) && velocity > 0  )velocity-=.5;
 //		
@@ -108,7 +126,7 @@ public class Prototype extends Game {
 //		mario.eval_force();
 		if(!move)mario.xfriction();
 		if(onGround) {
-			mario.setPosition(new Point(p.x,(int)Math.floor((930-(mario.getUnscaledHeight()*mario.getScaleY())))));
+			mario.setPosition(new Point(p.x,(int)Math.floor((530-(mario.getUnscaledHeight()*mario.getScaleY())))));
 			mario.setNormalUp(true);
 			jump = true;
 		}
@@ -117,10 +135,21 @@ public class Prototype extends Game {
 			fire = false;
 			f_count = 0;
 			System.out.println("f");
-			this.dispatchEvent(new ProjectileEvent(ProjectileEvent.PROJECTILE_FIRED,this,"Fire", "s"));
+			this.dispatchEvent(new ProjectileEvent(ProjectileEvent.PROJECTILE_FIRED, this,"Fire", "s"));
 //			mario.push_force(0,-50);
 //				this.dispatchEvent(new SoundEvent(SoundEvent.TRIGGER_SOUND_EFFECT,this,"jump"));
 		}	
+		if(pressedKeys.contains(KeyEvent.VK_E)) {
+			if(explosion_count == 0) {
+				explosion.setPause(false);
+			}
+			explosion_count++;
+			if(explosion_count == 10) {
+				explosion_count = 0;
+			}
+			System.out.println(explosion_count);
+		}
+
 		if(f_count<=50) {
 			f_count++;
 		}
@@ -176,6 +205,8 @@ public class Prototype extends Game {
 			}
 		}
 		g2.draw(mario.getGlobalHitbox());
+		g2.drawString("Angle: " + angle, 0, 10);
+		g2.drawString("Power: " + velocity, 0, 20);
 	}
 	@Override
 	public void setDisplay() {
@@ -183,14 +214,17 @@ public class Prototype extends Game {
 //		this.addChild(Plats);
 //		Plats.addChild(p1);
 		this.addChild(Proj);
+		this.addChild(explosion);
 //		Plats.addChild(p4);
 	}
 	public void Scale() {
 		mario.setScale(.50);
+		explosion.setScale(0.3);
 		p1.setScaleX(5.0);
 	}
 	public void Position() {
 		mario.setPosition(400,500);
+		explosion.setPosition(50, 100);
 		p1.setPosition(0, 750);
 	}
 	@Override
@@ -253,7 +287,7 @@ public class Prototype extends Game {
 			f1.addSubmunition(f2);
 			f1.addSubmunition(f3);
 			f1.addSubmunition(f4);
-			mario.findCenter();
+			//mario.findCenter();
 			Point mp = mario.getPosition();
 //			Point pp = mario.getPivotPoint();
 			f1.setPosition(new Point((int)(mp.x+((mario.getUnscaledWidth()*mario.getScaleX())/4)),(int)(mp.y-(f1.getUnscaledHeight()*f1.getScaleY()))));
