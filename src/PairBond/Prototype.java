@@ -286,24 +286,7 @@ public class Prototype extends Game {
 		}
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_FIRED) {
 			System.out.println("fire"); 
-			Projectile f1 = new Projectile("f1");
-			Projectile f2 = new Projectile("f2");
-			f2.setSolid(false);
-			f2.setVisible(false);
-			Projectile f3 = new Projectile("f3");
-			f3.setSolid(false);
-			f3.setVisible(false);
-			Projectile f4 = new Projectile("f4");
-			f4.setSolid(false);
-			f4.setVisible(false);
-			f1.setFuse(20);
-			f2.setFuse(20);
-			f3.setFuse(20);
-			f4.setFuse(20);
-			f1.setSpread(40.0);
-			f1.addSubmunition(f2);
-			f1.addSubmunition(f3);
-			f1.addSubmunition(f4);
+			Projectile f1 = Projectile.loadProjectile("id", "standard");
 //			tank1.findCenter();
 			Tank t1 = (Tank)PlayerSelect.get(player);
 			Point mp = t1.getPosition();
@@ -321,6 +304,7 @@ public class Prototype extends Game {
 			this.addEventListener(f1, ProjectileEvent.PROJECTILE_EXPLODE);
 			Proj.addChild(f1);
 			this.dispatchEvent(new PlayerEvent(this,PlayerEvent.FIRE));
+			Projectile.loadProjectile("","");
 		}
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_EXPLODE) {
 			ProjectileEvent e = (ProjectileEvent)event;

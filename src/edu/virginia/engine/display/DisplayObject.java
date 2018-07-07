@@ -119,6 +119,18 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 		this.position = position;
 	}
 
+	public Integer getHeight() {
+		return height;
+	}
+	public void setHeight(Integer height) {
+		this.height = height;
+	}
+	public Integer getWidth() {
+		return width;
+	}
+	public void setWidth(Integer width) {
+		this.width = width;
+	}
 	public void setPosition(Integer x, Integer y) {
 		this.position.setLocation(x,y);
 	}
@@ -448,12 +460,12 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 		return at;
 	}
 	public Shape getGlobalHitbox(){
-		if(this.hitboxShape == "Round")return getGlobalTransform().createTransformedShape(new Ellipse2D.Double(0.0,0.0,radius,radius));
+		if(this.hitboxShape.equals("Round"))return getGlobalTransform().createTransformedShape(new Ellipse2D.Double(0.0,0.0,radius,radius));
 		else return getGlobalTransform().createTransformedShape(new Rectangle(0, 0, getUnscaledWidth(), getUnscaledHeight()));
 	}
 		
 	public Shape getLocalHitbox(){
-		if(this.hitboxShape == "Round")return getLocalTransform().createTransformedShape(new Ellipse2D.Double(0.0,0.0,radius,radius));
+		if(this.hitboxShape.equals("Round"))return getLocalTransform().createTransformedShape(new Ellipse2D.Double(0.0,0.0,radius,radius));
 		else return getLocalTransform().createTransformedShape(new Rectangle(0, 0, getUnscaledWidth(), getUnscaledHeight()));
 	}
 	public Stack<Point> getForces() {

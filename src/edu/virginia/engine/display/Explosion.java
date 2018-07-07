@@ -11,8 +11,10 @@ public class Explosion extends DisplayObject {
 		this.setHitboxShape(blastType);
 		this.setRadius(radius);
 	}
-	public Explosion(String id, int damage, int duration, String blastType, double radius) {
+	public Explosion(String id, int damage, int duration, String blastType, double radius, int height, int width) {
 		super(id);
+		this.setHeight(height);
+		this.setWidth(width);
 		this.damage = damage;
 		this.duration = duration;
 		this.setHitboxShape(blastType);
