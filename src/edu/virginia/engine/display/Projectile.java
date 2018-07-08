@@ -219,7 +219,7 @@ public class Projectile extends Sprite implements IEventListener {
 					"%d\n" + "%d\n" + "%d\n" +
 					"%d\n" + "%d\n" + "%f\n" +
 					"%s\n" + "%d\n",
-					p.getImg(), p.getBlastType(), p.getRadius(),
+					p.getImg(),p.getBlastType(), p.getRadius(),
 					e.getDamage(), e.getDuration(),  e.getHeight(),
 					e.getWidth(),p.getFuse(),p.getSpread(),
 					p.getSub(),p.getSubmunition().size());

@@ -11,6 +11,9 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.ArrayList;
 
+import Levels.Background;
+import Levels.Ground;
+import Levels.Level1;
 import Sprites.Coin;
 import Sprites.Mario;
 import Sprites.Platform;
@@ -39,6 +42,7 @@ import edu.virginia.engine.sound.SoundManager;
 public class Prototype extends Game {
 	Tank tank1 = new Tank("tank1", "Tank2.png", 2);
 	Tank tank2 = new Tank("tank2","Tank1.png",1);
+	Level1 lv = new Level1("lv1",1);
 	SoundManager SM = new SoundManager();
 	TweenJuggler TJ = new TweenJuggler();
 	Platform p1 = new Platform("p1");
@@ -62,7 +66,7 @@ public class Prototype extends Game {
 	
 	ArrayList<DisplayObject> PlayerSelect = Tanks.getChildren();
 	public Prototype() {
-		super("Prototype", 1500, 1500);
+		super("Prototype", 1500, 1100);
 		this.setDisplay();
 		this.Scale();
 		this.Position();
@@ -71,7 +75,9 @@ public class Prototype extends Game {
 		this.addEventListener(this, ProjectileEvent.PROJECTILE_EXPLODE);
 		this.addEventListener(this, PlayerEvent.FIRE);
 		this.addEventListener(this, PlayerEvent.TURN_END);
-		tank1.addEventListener(this, CollisionEvent.COLLISION);
+		for(int x = 0; x<Tanks.getChildren().size();x++) {
+			Tanks.getChild(x).addEventListener(this, CollisionEvent.COLLISION);
+		}
 		File dir = new File("weapons/");
 		File[] filesList = dir.listFiles();
 		for (File file : filesList) {
@@ -194,8 +200,8 @@ public class Prototype extends Game {
 				jump = true;
 			}
 			t1.move();
-			for(int x = 0;x<Plats.getChildren().size();x++) {
-				DisplayObject c = Plats.getChild(x);
+			for(int x = 0;x<lv.getChildren().size();x++) {
+				DisplayObject c = lv.getChild(x);
 				if(t1.collidesWith(c)) {
 				t1.dispatchEvent(new CollisionEvent(CollisionEvent.COLLISION,t1,c));
 				}
@@ -231,7 +237,7 @@ public class Prototype extends Game {
 		String t2 = String.format("%d / 100", tank2.getHealth());
 		g.setFont(new Font("TimesRoman", Font.PLAIN, 100));
 		g.drawString(t1,40,80);
-		g.drawString(t2,1100,80);
+		g.drawString(t2,1000,80);
 		g.drawString(WeaponSelect.get(weapon), 500, 1000);
 		Graphics2D g2 = (Graphics2D)g;
 		if(EXP!=null) {
@@ -245,6 +251,7 @@ public class Prototype extends Game {
 	}
 	@Override
 	public void setDisplay() {
+		this.addChild(lv);
 		this.addChild(Tanks);
 		Tanks.addChild(tank1);
 		Tanks.addChild(tank2);

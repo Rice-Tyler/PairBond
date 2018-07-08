@@ -12,6 +12,7 @@ public class Tank extends Sprite {
 	public double angle = 90.0;
 	public Tank(String id, String filename, int n) {
 		super(id, filename);
+		this.setSolid(true);
 		switch (n) {
 		case 1:
 			//this.readImage("Tank1.png");

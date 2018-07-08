@@ -19,7 +19,7 @@ import edu.virginia.engine.display.Game;
 import edu.virginia.engine.display.Sprite;
 import Sprites.Platform;
 import Sprites.Tank;
-import Sprites.healthbarSprite;
+//import Sprites.healthbarSprite;
 import edu.virginia.engine.events.Event;
 import edu.virginia.engine.util.GameClock;
 import edu.virginia.lab4.QuestManager;
@@ -37,7 +37,7 @@ class LevelOne extends Game {
 	Rectangle battleGrounds = new Rectangle(150, 200, 1200, 800);
 	
 	SoundManager soundManager;
-	healthbarSprite healthBar = new healthbarSprite("healthBar");
+//	healthbarSprite healthBar = new healthbarSprite("healthBar");
 	int healthWidth = 0;
 	
 	boolean tankDestroyed = false;
@@ -77,8 +77,8 @@ class LevelOne extends Game {
 		
 		this.getScenePanel().setBackground(Color.WHITE);
 		
-		healthBar.setPosition(10, 10);
-		healthBar.setScaleX(0.004);
+//		healthBar.setPosition(10, 10);
+//		healthBar.setScaleX(0.004);
 	}
 	
 	@Override
