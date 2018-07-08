@@ -33,6 +33,7 @@ import edu.virginia.engine.display.Sprite;
 import edu.virginia.engine.events.CoinEvent;
 import edu.virginia.engine.events.CollisionEvent;
 import edu.virginia.engine.events.Event;
+import edu.virginia.engine.events.GameEvent;
 import edu.virginia.engine.events.PlayerEvent;
 import edu.virginia.engine.events.ProjectileEvent;
 import edu.virginia.engine.events.SoundEvent;
@@ -52,6 +53,7 @@ public class Prototype extends Game {
 	/* Container to hold Explosion Hitboxes*/
 	DisplayObjectContainer EXP = new DisplayObjectContainer("EXP");
 	ArrayList<String> WeaponSelect = new ArrayList<String>();
+	boolean gameover = false;
 	boolean jump = false;
 	boolean Switch = true;
 	boolean fire = true;
@@ -75,6 +77,7 @@ public class Prototype extends Game {
 		this.addEventListener(this, ProjectileEvent.PROJECTILE_EXPLODE);
 		this.addEventListener(this, PlayerEvent.FIRE);
 		this.addEventListener(this, PlayerEvent.TURN_END);
+		this.addEventListener(this, GameEvent.GAME_OVER);
 		for(int x = 0; x<Tanks.getChildren().size();x++) {
 			Tanks.getChild(x).addEventListener(this, CollisionEvent.COLLISION);
 		}
@@ -203,7 +206,7 @@ public class Prototype extends Game {
 			for(int x = 0;x<lv.getChildren().size();x++) {
 				DisplayObject c = lv.getChild(x);
 				if(t1.collidesWith(c)) {
-				t1.dispatchEvent(new CollisionEvent(CollisionEvent.COLLISION,t1,c));
+//				t1.dispatchEvent(new CollisionEvent(CollisionEvent.COLLISION,t1,c));
 				}
 			}
 		}
@@ -216,6 +219,9 @@ public class Prototype extends Game {
 					System.out.println("hit");
 //					System.out.println(e.getDamage());
 					t.decreaseHealth(e.getDamage());
+					if(t.getHealth()<0) {
+//						this.dispatchEvent(new GameEvent(GameEvent.GAME_OVER,this));
+					}
 //					System.out.printf("%s:%d \n",t.getId(),t.getHealth());
 				}
 			}
@@ -291,23 +297,7 @@ public class Prototype extends Game {
 //						currCoin.setVisible(false);
 					}
 				}
-				else
-				
 				jump = this.collide(d1, d2);
-			}
-		}
-		if(event.getEventType() == CoinEvent.ALL_COINS_PICKED_UP) {
-			this.pause();
-			this.dispatchEvent(new SoundEvent(SoundEvent.STOP_MUSIC,this,"music"));
-		}
-		if(event.getEventType()==TweenEvent.TWEEN_COMPLETE) {
-			TweenEvent e = (TweenEvent) event;
-//			System.out.println(e.getTween().getId());
-			if(e.getTween().getId()=="swoop") {
-//				System.out.println("y");
-				Tween fadeout = new Tween("fadeout",e.getTween().getObject());
-				fadeout.animate(TweenableParams.Tweenables.Alpha, 1.0, 0.0, 300.0);
-				TJ.add(fadeout);
 			}
 		}
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_FIRED) {
@@ -358,6 +348,7 @@ public class Prototype extends Game {
 				p.removeChild(temp);
 			}
 			Explosion exp = p.getExp();
+//			Point pexp = localToGlobal(exp.getPosition,exp)
 			exp.setPosition(localToGlobal(exp.getPosition(),exp));
 			EXP.addChild(exp);
 			Proj.removeChildById(e.getId());
@@ -371,6 +362,10 @@ public class Prototype extends Game {
 		if(event.getEventType() == PlayerEvent.TURN_END) {
 			player=(player+1)%2;
 			pause_movement = false;
+		}
+		if(event.getEventType() == GameEvent.GAME_OVER) {
+//			this.s
+			this.pause();
 		}
 	}
 	

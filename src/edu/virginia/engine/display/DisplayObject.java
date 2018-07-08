@@ -460,12 +460,12 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 		return at;
 	}
 	public Shape getGlobalHitbox(){
-		if(this.hitboxShape.equals("Round"))return getGlobalTransform().createTransformedShape(new Ellipse2D.Double(0.0,0.0,radius,radius));
+		if(this.hitboxShape.equals("Round"))return getGlobalTransform().createTransformedShape(new Ellipse2D.Double(-radius/2,-radius/2,radius,radius));
 		else return getGlobalTransform().createTransformedShape(new Rectangle(0, 0, getUnscaledWidth(), getUnscaledHeight()));
 	}
 		
 	public Shape getLocalHitbox(){
-		if(this.hitboxShape.equals("Round"))return getLocalTransform().createTransformedShape(new Ellipse2D.Double(0.0,0.0,radius,radius));
+		if(this.hitboxShape.equals("Round"))return getLocalTransform().createTransformedShape(new Ellipse2D.Double(-radius/2,-radius/2,radius,radius));
 		else return getLocalTransform().createTransformedShape(new Rectangle(0, 0, getUnscaledWidth(), getUnscaledHeight()));
 	}
 	public Stack<Point> getForces() {
