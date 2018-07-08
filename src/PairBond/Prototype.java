@@ -244,7 +244,8 @@ public class Prototype extends Game {
 		g.setFont(new Font("TimesRoman", Font.PLAIN, 100));
 		g.drawString(t1,40,80);
 		g.drawString(t2,1000,80);
-		g.drawString(WeaponSelect.get(weapon), 500, 1000);
+		g.setColor(Color.GREEN);
+		g.drawString(WeaponSelect.get(weapon), 500, 800);
 		Graphics2D g2 = (Graphics2D)g;
 		if(EXP!=null) {
 			for(int i = 0; i<EXP.getChildren().size();i++) {
@@ -253,7 +254,7 @@ public class Prototype extends Game {
 				
 			}
 		}
-		g2.draw(tank1.getGlobalHitbox());
+//		g2.draw(tank1.getGlobalHitbox());
 		Tank currTank = (Tank) Tanks.getChild((player+1)%2);
 		if(currTank.getHealth() < 0) {
 			g2.drawString("Game Over", 300, 200);
