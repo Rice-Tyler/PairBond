@@ -11,11 +11,11 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.ArrayList;
 
-import Levels.Background;
-import Levels.Ground;
+//import Levels.Background;
+//import Levels.Ground;
 import Levels.Level1;
 import Sprites.Coin;
-import Sprites.Mario;
+//import Sprites.Mario;
 import Sprites.Platform;
 import Sprites.Tank;
 import edu.virginia.engine.animation.Tween;
@@ -29,15 +29,15 @@ import edu.virginia.engine.display.DisplayObjectContainer;
 import edu.virginia.engine.display.Explosion;
 import edu.virginia.engine.display.Game;
 import edu.virginia.engine.display.Projectile;
-import edu.virginia.engine.display.Sprite;
-import edu.virginia.engine.events.CoinEvent;
+//import edu.virginia.engine.display.Sprite;
+//import edu.virginia.engine.events.CoinEvent;
 import edu.virginia.engine.events.CollisionEvent;
 import edu.virginia.engine.events.Event;
 import edu.virginia.engine.events.GameEvent;
 import edu.virginia.engine.events.PlayerEvent;
 import edu.virginia.engine.events.ProjectileEvent;
-import edu.virginia.engine.events.SoundEvent;
-import edu.virginia.engine.events.TweenEvent;
+//import edu.virginia.engine.events.SoundEvent;
+//import edu.virginia.engine.events.TweenEvent;
 import edu.virginia.engine.sound.SoundManager;
 
 public class Prototype extends Game {
@@ -254,6 +254,11 @@ public class Prototype extends Game {
 			}
 		}
 		g2.draw(tank1.getGlobalHitbox());
+		Tank currTank = (Tank) Tanks.getChild((player+1)%2);
+		if(currTank.getHealth() < 0) {
+			g2.drawString("Game Over", 300, 200);
+			this.pause();
+		}
 	}
 	@Override
 	public void setDisplay() {
