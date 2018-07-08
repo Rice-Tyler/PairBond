@@ -10,6 +10,7 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
+import Levels.Level1;
 import Sprites.Coin;
 import Sprites.Mario;
 import Sprites.Platform;
@@ -36,8 +37,9 @@ import edu.virginia.engine.events.TweenEvent;
 import edu.virginia.engine.sound.SoundManager;
 
 public class Prototype extends Game {
-	Tank tank1 = new Tank("tank1", "Tank2.png", 2);
-	Tank tank2 = new Tank("tank2","Tank1.png",1);
+	Tank tank1 = new Tank("tank1", "Tank3.png", 3);
+	Tank tank2 = new Tank("tank4","Tank4.png",4);
+	Level1 level = new Level1("level1", 1);
 	SoundManager SM = new SoundManager();
 	TweenJuggler TJ = new TweenJuggler();
 	Platform p1 = new Platform("p1");
@@ -223,9 +225,15 @@ public class Prototype extends Game {
 			}
 		}
 		g2.draw(tank1.getGlobalHitbox());
+		Tank currTank = (Tank) Tanks.getChild(player);
+		if(currTank.getHealth() < 0) {
+			g2.drawString("Game Over", 300, 200);
+			this.pause();
+		}
 	}
 	@Override
 	public void setDisplay() {
+		this.addChild(level);
 		this.addChild(Tanks);
 		Tanks.addChild(tank1);
 		Tanks.addChild(tank2);
