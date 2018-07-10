@@ -176,18 +176,21 @@ public class Prototype extends Game {
 			double xvel = P.getxVelocity();
 			double yvel = P.getyVelocity();
 			double thetap = -Math.atan(xvel/yvel)+(Math.PI/2);
+			boolean explode = false;
 			if(yvel>0)thetap+=Math.PI;
 			P.findCenter();
 			P.setRotation(thetap);
 			for(int y = 0; y<Tanks.getChildren().size();y++) {
-				if(P.collidesWith(Tanks.getChild(y))) {
+				if(P.collidesWith(Tanks.getChild(y)) && !explode) {
 					this.dispatchEvent(new ProjectileEvent(ProjectileEvent.PROJECTILE_EXPLODE,P,P.getId(),"s"));
+					explode = true;
 					x--;
 				}
 			}
 			P.incCountdown();
-			if(P.getCountdown()>P.getFuse()) {
+			if(P.getCountdown()>P.getFuse() & !explode) {
 				this.dispatchEvent(new ProjectileEvent(ProjectileEvent.PROJECTILE_EXPLODE,P,P.getId(),"s"));
+				explode = true;
 				x--;
 			}
 		}
@@ -220,7 +223,7 @@ public class Prototype extends Game {
 //					System.out.println(e.getDamage());
 					t.decreaseHealth(e.getDamage());
 					if(t.getHealth()<0) {
-//						this.dispatchEvent(new GameEvent(GameEvent.GAME_OVER,this));
+						this.dispatchEvent(new GameEvent(GameEvent.GAME_OVER,this));
 					}
 //					System.out.printf("%s:%d \n",t.getId(),t.getHealth());
 				}
@@ -238,15 +241,31 @@ public class Prototype extends Game {
 	@Override 
 	public void draw(Graphics g) {
 		if(this!=null)super.draw(g);
-		
-		String t1 = String.format("%d / 100", tank1.getHealth());
-		String t2 = String.format("%d / 100", tank2.getHealth());
 		g.setFont(new Font("TimesRoman", Font.PLAIN, 100));
-		g.drawString(t1,40,80);
-		g.drawString(t2,1000,80);
-		g.setColor(Color.GREEN);
-		g.drawString(WeaponSelect.get(weapon), 500, 800);
+		if(tank1!=null) {
+			g.setColor(Color.BLACK);
+			String t1 = String.format("%d / 100", tank1.getHealth());
+			if(tank1.getHealth()<50)g.setColor(Color.YELLOW);
+			if(tank1.getHealth()<25)g.setColor(Color.RED);
+			g.drawString(t1,40,80);
+		}
+		if(tank2!=null) {
+			g.setColor(Color.BLACK);
+			if(tank2.getHealth()<50)g.setColor(Color.YELLOW);
+			if(tank2.getHealth()<25)g.setColor(Color.RED);
+			String t2 = String.format("%d / 100", tank2.getHealth());
+			
+			g.drawString(t2,1000,80);
+		}
 		Graphics2D g2 = (Graphics2D)g;
+		for(int i = 0;i<Proj.getChildren().size();i++) {
+			g2.draw(((Projectile)Proj.getChild(i)).getExp().getGlobalHitbox());
+		}
+		g.setColor(Color.BLACK);
+		
+		g.setColor(Color.GREEN);
+		if(WeaponSelect!=null)g.drawString(WeaponSelect.get(weapon), 500, 800);
+		
 		if(EXP!=null) {
 			for(int i = 0; i<EXP.getChildren().size();i++) {
 				g2.setColor(Color.RED);
@@ -255,11 +274,11 @@ public class Prototype extends Game {
 			}
 		}
 //		g2.draw(tank1.getGlobalHitbox());
-		Tank currTank = (Tank) Tanks.getChild((player+1)%2);
-		if(currTank.getHealth() < 0) {
-			g2.drawString("Game Over", 300, 200);
-			this.pause();
-		}
+//		Tank currTank = (Tank) Tanks.getChild((player+1)%2);
+//		if(currTank.getHealth() < 0) {
+//			g2.drawString("Game Over", 300, 200);
+//			this.pause();
+//		}
 	}
 	@Override
 	public void setDisplay() {
@@ -312,7 +331,7 @@ public class Prototype extends Game {
 			Tank t1 = (Tank)PlayerSelect.get(player);
 
 			DisplayObject barrel = t1.getChild(0);
-			Point Barrelpoint = localToGlobal(barrel.getPosition(),barrel);
+			Point Barrelpoint = barrel.localToGlobal(barrel.getPosition());
 			f1.setPosition(new Point(Barrelpoint.x,(int)(Barrelpoint.y-(barrel.getUnscaledHeight()*barrel.getScaleY()))));
 			
 			double rad = Math.toRadians(t1.angle);
@@ -324,42 +343,46 @@ public class Prototype extends Game {
 			this.addEventListener(f1, ProjectileEvent.PROJECTILE_EXPLODE);
 			Proj.addChild(f1);
 			this.dispatchEvent(new PlayerEvent(this,PlayerEvent.FIRE));
-			Projectile.loadProjectile("","");
 		}
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_EXPLODE) {
 			ProjectileEvent e = (ProjectileEvent)event;
 			System.out.println("explode"); 
 			Projectile p = (Projectile)Proj.getChild(e.getId());
-			ArrayList<Projectile> psub = p.getSubmunition();
-			double spread = p.getSpread();
-			spread = spread/psub.size();
-			Double spread_start = 0.0;
-			if(psub.size()%2 ==1) {
-				spread_start = -(psub.size()-1)/2 *spread;
-			}
-			else {
-				spread_start = -(psub.size())/2 *spread;
-			}
-			for(int z = 0;z<psub.size();z++) {
-				Projectile temp = psub.get(z);
-				
-				temp.setxVelocity(p.getxVelocity());
-				temp.setyVelocity(p.getyVelocity());
-				temp.turn(spread_start + (z*spread));
-				temp.setSolid(true);
-				temp.setVisible(true);
-				temp.setPosition(localToGlobal(temp.getPosition(),temp));
-				temp.getExp().setPosition(localToGlobal(temp.getExp().getPosition(),temp.getExp()));
-				Proj.addChild(temp);
-				p.removeChild(temp);
-			}
-			Explosion exp = p.getExp();
-//			Point pexp = localToGlobal(exp.getPosition,exp)
-			exp.setPosition(localToGlobal(exp.getPosition(),exp));
-			EXP.addChild(exp);
-			Proj.removeChildById(e.getId());
-			if(Proj.getChildren().size()<=0) {
-				this.dispatchEvent(new PlayerEvent(this, PlayerEvent.TURN_END));
+			if(p!=null) {
+				ArrayList<Projectile> psub = p.getSubmunition();
+				double spread = p.getSpread();
+				spread = spread/psub.size();
+				Double spread_start = 0.0;
+				if(psub.size()%2 ==1) {
+					spread_start = -(psub.size()-1)/2 *spread;
+				}
+				else {
+					spread_start = -(psub.size())/2 *spread;
+				}
+				for(int z = 0;z<psub.size();z++) {
+					Projectile temp = psub.get(z);
+					
+					temp.setxVelocity(p.getxVelocity());
+					temp.setyVelocity(p.getyVelocity());
+					temp.turn(spread_start + (z*spread));
+					temp.setSolid(true);
+					temp.setVisible(true);
+					temp.setPosition(temp.localToGlobal(temp.getPosition()));
+//					temp.getExp().setPosition(localToGlobal(temp.getExp().getPosition(),temp.getExp()));
+					Proj.addChild(temp);
+					p.removeChild(temp);
+				}
+				Explosion exp = p.getExp();
+	//			Point pexp = localToGlobal(exp.getPosition,exp)
+				if(exp.getPosition().x==0 && exp.getPosition().y==0)exp.setPosition(p.localToGlobal(p.getPosition()));
+				else exp.setPosition(exp.localToGlobal(exp.getPosition()));
+				System.out.println(exp.getPosition());
+//				exp.setRotation(p.getRotation());
+				EXP.addChild(exp);
+				Proj.removeChildById(e.getId());
+				if(Proj.getChildren().size()<=0) {
+					this.dispatchEvent(new PlayerEvent(this, PlayerEvent.TURN_END));
+				}
 			}
 		}
 		if(event.getEventType() == PlayerEvent.FIRE) {
@@ -370,7 +393,9 @@ public class Prototype extends Game {
 			pause_movement = false;
 		}
 		if(event.getEventType() == GameEvent.GAME_OVER) {
-//			this.s
+			if(tank1.getHealth() < 0) {
+				
+			}
 			this.pause();
 		}
 	}

@@ -24,15 +24,15 @@ public class Projectile extends Sprite implements IEventListener {
 	private String img = "";
 	
 	private ArrayList<Projectile> submunition = new ArrayList<Projectile>();
-	public Projectile(String id,String filename,String blastType,Double radius,int damage,int duration,int height,int width,int fuse, Double spread,String sub) {
+	public Projectile(String id,String filename,String blastType,Double diameter,int damage,int duration,int height,int width,int fuse, Double spread,String sub) {
 		super(id,filename);
 		this.img = filename;
 		this.blastType = blastType;
-		this.setRadius(radius);
+		this.setdiameter(diameter);
 		this.fuse=fuse;
 		this.spread=spread;
 		this.sub = sub;
-		this.exp=new Explosion(this.getId(),damage,duration,blastType,radius,height,width);
+		this.exp=new Explosion(this.getId(),damage,duration,blastType,diameter,height,width);
 		this.setScale(.1);
 		this.setSolid(false);
 		this.setNormalUp(false);
@@ -144,7 +144,7 @@ public class Projectile extends Sprite implements IEventListener {
 			System.out.println(blastType);	
 			System.out.println(blastType.equals("Round"));
 			
-			/*blastRadius*/
+			/*blastdiameter*/
 			line = br.readLine();
 			r = Double.valueOf(line);
 			System.out.println(r);
@@ -198,9 +198,9 @@ public class Projectile extends Sprite implements IEventListener {
 //		
 		if(!sub.equals("none")) {
 			for(int x =0;x<sub_num;x++) {
-				String path = String.format("weapons/%s",sub);
-				System.out.println(path);
-				Projectile sp = loadProjectile(String.format("s%d", x),path);
+//				String path = String.format("weapons/%s",sub);
+//				System.out.println(path);
+				Projectile sp = loadProjectile(String.format("s%d", x),sub);
 				p.addSubmunition(sp);
 			}
 		}
@@ -219,7 +219,7 @@ public class Projectile extends Sprite implements IEventListener {
 					"%d\n" + "%d\n" + "%d\n" +
 					"%d\n" + "%d\n" + "%f\n" +
 					"%s\n" + "%d\n",
-					p.getImg(),p.getBlastType(), p.getRadius(),
+					p.getImg(),p.getBlastType(), p.getdiameter(),
 					e.getDamage(), e.getDuration(),  e.getHeight(),
 					e.getWidth(),p.getFuse(),p.getSpread(),
 					p.getSub(),p.getSubmunition().size());

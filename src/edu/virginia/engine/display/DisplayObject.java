@@ -54,7 +54,7 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 	private boolean NormalUp = false;
 //	private boolean reverse = false;
 	private String hitboxShape = "Rect";
-	private Double radius = 0.0;
+	private Double diameter = 0.0;
 	private Integer height = 0;
 	private Integer width = 0;
 
@@ -310,11 +310,11 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 	public void setHitboxShape(String hitboxShape) {
 		this.hitboxShape = hitboxShape;
 	}
-	public Double getRadius() {
-		return radius;
+	public Double getdiameter() {
+		return diameter;
 	}
-	public void setRadius(Double radius) {
-		this.radius = radius;
+	public void setdiameter(Double diameter) {
+		this.diameter = diameter;
 	}
 	/**
 	 * Invoked on every frame before drawing. Used to update this display
@@ -431,21 +431,28 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 		}
 		
 	}
-	public Point localToGlobal(Point pos, DisplayObject d) {
-		if(d.getParent()!= null) {
-			Point p = d.getPosition();
-//			System.out.println(d.parent.getId());
-			return localToGlobal(new Point(p.x+pos.x,p.y+pos.y),d.parent);
-			
-		}
-		else {
-			return pos;
-		}
+	public Point localToGlobal(Point p) {
+		Point dest = new Point();
+		this.getGlobalTransform().transform(p, dest);
+		return dest;
+//		if(d.getParent()!= null) {
+//			Point p = d.getPosition();
+////			System.out.println(d.parent.getId());
+//			return localToGlobal(new Point(p.x+pos.x,p.y+pos.y),d.parent);
+//			
+//		}
+//		else {
+//			return pos;
+//		}
 	}
 	public AffineTransform getGlobalTransform(){
 		AffineTransform at;
 		if(this.parent == null) at = new AffineTransform();
-		else at = this.getParent().getGlobalTransform();
+		else {
+			at = this.getParent().getGlobalTransform();
+			Point pp = this.getParent().getPivotPoint();
+			at.translate(-pp.x, -pp.y);
+		}
 		
 		at.concatenate(getLocalTransform());
 		return at;
@@ -456,16 +463,16 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 		at.translate(this.position.x, this.position.y);
 		at.rotate(this.rotation);
 		at.scale(this.scaleX, this.scaleY);
-		at.translate(this.pivotPoint.x, this.pivotPoint.y);
+		at.translate(this.pivotPoint.x, this. pivotPoint.y);
 		return at;
 	}
 	public Shape getGlobalHitbox(){
-		if(this.hitboxShape.equals("Round"))return getGlobalTransform().createTransformedShape(new Ellipse2D.Double(-radius/2,-radius/2,radius,radius));
+		if(this.hitboxShape.equals("Round"))return getGlobalTransform().createTransformedShape(new Ellipse2D.Double(-diameter/2,-diameter/2,diameter,diameter));
 		else return getGlobalTransform().createTransformedShape(new Rectangle(0, 0, getUnscaledWidth(), getUnscaledHeight()));
 	}
 		
 	public Shape getLocalHitbox(){
-		if(this.hitboxShape.equals("Round"))return getLocalTransform().createTransformedShape(new Ellipse2D.Double(-radius/2,-radius/2,radius,radius));
+		if(this.hitboxShape.equals("Round"))return getLocalTransform().createTransformedShape(new Ellipse2D.Double(-diameter/2,-diameter/2,diameter,diameter));
 		else return getLocalTransform().createTransformedShape(new Rectangle(0, 0, getUnscaledWidth(), getUnscaledHeight()));
 	}
 	public Stack<Point> getForces() {
@@ -552,8 +559,8 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 		
 	}
 	public boolean collide(DisplayObject d1, DisplayObject d2) {
-		Point g1 = d1.localToGlobal(d1.getPivotPoint(), d1);
-		Point g2 = d2.localToGlobal(d2.getPivotPoint(), d2);
+		Point g1 = d1.localToGlobal(d1.getPivotPoint());
+		Point g2 = d2.localToGlobal(d2.getPivotPoint());
 		Point l1 = d1.getPosition();
 		System.out.printf("%s:: x: %d y: %d xV: %d yV: %d \n",d1.getId(),g1.x,g1.y,d1.getxVelocity(),d1.getyVelocity());
 		System.out.printf("%s:: x: %d y: %d \n",d2.getId(),g2.x,g2.y);

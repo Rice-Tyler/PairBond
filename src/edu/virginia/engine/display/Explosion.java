@@ -4,21 +4,21 @@ public class Explosion extends DisplayObject {
 	int damage = 5;
 	int duration = 5;
 	int count = 0;
-	public Explosion(String id, String fileName, int damage, int duration,String blastType, double radius) {
+	public Explosion(String id, String fileName, int damage, int duration,String blastType, double diameter) {
 		super(id, fileName);
 		this.damage = damage;
 		this.duration = duration;
 		this.setHitboxShape(blastType);
-		this.setRadius(radius);
+		this.setdiameter(diameter);
 	}
-	public Explosion(String id, int damage, int duration, String blastType, double radius, int height, int width) {
+	public Explosion(String id, int damage, int duration, String blastType, double diameter, int height, int width) {
 		super(id);
 		this.setHeight(height);
 		this.setWidth(width);
 		this.damage = damage;
 		this.duration = duration;
 		this.setHitboxShape(blastType);
-		this.setRadius(radius);
+		this.setdiameter(diameter);
 	}
 	public int getCount() {
 		return count;

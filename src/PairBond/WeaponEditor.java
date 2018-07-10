@@ -298,18 +298,20 @@ public class WeaponEditor extends Game {
 	@Override 
 	public void draw(Graphics g) {
 		if(this!=null)super.draw(g);
-		
-		String t1 = String.format("%d / 100", tank1.getHealth());
-		String t2 = String.format("%d / 100", tank2.getHealth());
-		g.setFont(new Font("TimesRoman", Font.PLAIN, 100));
-		g.drawString(t1,40,80);
-		g.drawString(t2,1100,80);
-		g.drawString(WeaponSelect.get(weapon), 500, 1000);
-		g.drawString(String.format("%d", Select+1),500,1100);
-		g.setFont(new Font("TimesRoman", Font.PLAIN, 50));
-		this.drawParams(g);
-		
 		Graphics2D g2 = (Graphics2D)g;
+		if(tank1!=null && tank2!=null) {
+			String t1 = String.format("%d / 100", tank1.getHealth());
+			String t2 = String.format("%d / 100", tank2.getHealth());
+			g.setFont(new Font("TimesRoman", Font.PLAIN, 100));
+			g.drawString(t1,40,80);
+			g.drawString(t2,1100,80);
+			g.drawString(WeaponSelect.get(weapon), 500, 1000);
+			g.drawString(String.format("%d", Select+1),500,1100);
+			g.setFont(new Font("TimesRoman", Font.PLAIN, 50));
+			this.drawParams(g);
+		}
+		
+		
 		if(EXP!=null) {
 			for(int i = 0; i<EXP.getChildren().size();i++) {
 				g2.setColor(Color.RED);
@@ -317,7 +319,7 @@ public class WeaponEditor extends Game {
 				
 			}
 		}
-		g2.draw(tank1.getGlobalHitbox());
+		
 	}
 	@Override
 	public void setDisplay() {
@@ -385,7 +387,7 @@ public class WeaponEditor extends Game {
 			Tank t1 = (Tank)PlayerSelect.get(player);
 
 			DisplayObject barrel = t1.getChild(0);
-			Point Barrelpoint = localToGlobal(barrel.getPosition(),barrel);
+			Point Barrelpoint = barrel.localToGlobal(barrel.getPosition());
 			f1.setPosition(new Point(Barrelpoint.x,(int)(Barrelpoint.y-(barrel.getUnscaledHeight()*barrel.getScaleY()))));
 			
 			double rad = Math.toRadians(t1.angle);
@@ -397,41 +399,46 @@ public class WeaponEditor extends Game {
 			this.addEventListener(f1, ProjectileEvent.PROJECTILE_EXPLODE);
 			Proj.addChild(f1);
 			this.dispatchEvent(new PlayerEvent(this,PlayerEvent.FIRE));
-			Projectile.loadProjectile("","");
+			
 		}
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_EXPLODE) {
 			ProjectileEvent e = (ProjectileEvent)event;
 			System.out.println("explode"); 
 			Projectile p = (Projectile)Proj.getChild(e.getId());
-			ArrayList<Projectile> psub = p.getSubmunition();
-			double spread = p.getSpread();
-			spread = spread/psub.size();
-			Double spread_start = 0.0;
-			if(psub.size()%2 ==1) {
-				spread_start = -(psub.size()-1)/2 *spread;
-			}
-			else {
-				spread_start = -(psub.size())/2 *spread;
-			}
-			for(int z = 0;z<psub.size();z++) {
-				Projectile temp = psub.get(z);
-				
-				temp.setxVelocity(p.getxVelocity());
-				temp.setyVelocity(p.getyVelocity());
-				temp.turn(spread_start + (z*spread));
-				temp.setSolid(true);
-				temp.setVisible(true);
-				temp.setPosition(localToGlobal(temp.getPosition(),temp));
-				temp.getExp().setPosition(localToGlobal(temp.getExp().getPosition(),temp.getExp()));
-				Proj.addChild(temp);
-				p.removeChild(temp);
-			}
-			Explosion exp = p.getExp();
-			exp.setPosition(localToGlobal(exp.getPosition(),exp));
-			EXP.addChild(exp);
-			Proj.removeChildById(e.getId());
-			if(Proj.getChildren().size()<=0) {
-				this.dispatchEvent(new PlayerEvent(this, PlayerEvent.TURN_END));
+			if(p!=null) {
+				ArrayList<Projectile> psub = p.getSubmunition();
+				double spread = p.getSpread();
+				spread = spread/psub.size();
+				Double spread_start = 0.0;
+				if(psub.size()%2 ==1) {
+					spread_start = -(psub.size()-1)/2 *spread;
+				}
+				else {
+					spread_start = -(psub.size())/2 *spread;
+				}
+				for(int z = 0;z<psub.size();z++) {
+					Projectile temp = psub.get(z);
+					
+					temp.setxVelocity(p.getxVelocity());
+					temp.setyVelocity(p.getyVelocity());
+					temp.turn(spread_start + (z*spread));
+					temp.setSolid(true);
+					temp.setVisible(true);
+					temp.setPosition(temp.localToGlobal(temp.getPosition()));
+//					temp.getExp().setPosition(localToGlobal(temp.getExp().getPosition(),temp.getExp()));
+					Proj.addChild(temp);
+					p.removeChild(temp);
+				}
+				Explosion exp = p.getExp();
+	//			Point pexp = localToGlobal(exp.getPosition,exp)
+//				if(exp.getPosition().x==0 && exp.getPosition().y==0)exp.setPosition(localToGlobal(p.getPosition(),p));
+				exp.setPosition(exp.localToGlobal(exp.getPosition()));
+				System.out.println(exp.getPosition());
+				EXP.addChild(exp);
+				Proj.removeChildById(e.getId());
+				if(Proj.getChildren().size()<=0) {
+					this.dispatchEvent(new PlayerEvent(this, PlayerEvent.TURN_END));
+				}
 			}
 		}
 		if(event.getEventType() == PlayerEvent.FIRE) {
@@ -449,19 +456,19 @@ public class WeaponEditor extends Game {
 	}
 	
 	public void drawParams(Graphics g) {
-		int x = 1100;
+		int x = 1000;
 		int y = 200;
-		String v1 = String.format("1> %s",imgName);
-		String v2 = String.format("2> %s",BlastType);
-		String v3 = String.format("3> %f", radius);
-		String v4 = String.format("4> %d", damage);
-		String v5 = String.format("5> %d", duration);
-		String v6 = String.format("6> %d", height);
-		String v7 = String.format("7> %d", width);
-		String v8 = String.format("8> %d", fuse);
-		String v9 = String.format("9> %f", spread);
-		String v10 = String.format("10> %s", sub);
-		String v11 = String.format("11> %s", sub_num);
+		String v1 = String.format("1>Image: %s",imgName);
+		String v2 = String.format("2>BlastType: %s",BlastType);
+		String v3 = String.format("3>Blast Radius: %.2f", radius);
+		String v4 = String.format("4>Damage: %d", damage);
+		String v5 = String.format("5>Blast Duration: %d", duration);
+		String v6 = String.format("6>Blast Height: %d", height);
+		String v7 = String.format("7>Blast Width: %d", width);
+		String v8 = String.format("8>Fuse: %d", fuse);
+		String v9 = String.format("9>Spread Angle: %.2f", spread);
+		String v10 = String.format("10>Submunition: %s", sub);
+		String v11 = String.format("11># Submunition: %s", sub_num);
 		if(Select == 0) {
 			g.setColor(Color.GREEN);
 			g.drawString(v1, x, y);

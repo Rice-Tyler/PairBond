@@ -100,16 +100,17 @@ public class DisplayObjectContainer extends DisplayObject {
 		this.children = new ArrayList<DisplayObject>();
 	}
 	public DisplayObject getChild(String id) {
-		for(int x = 0; x < this.num_children;x++) {
-			if(this.children.get(x).getId() == id) {
-				return this.children.get(x);
+		for(int z = 0; z < this.getChildren().size();z++) {
+			//if(z<0)z=0;
+			if(this.children.get(z).getId() == id) {
+				return this.children.get(z);
 			}
 		}
 		return null;
 	}
 	
 	public DisplayObject getChild(int x) {
-		if(x<this.num_children) {
+		if(x<this.getChildren().size()) {
 			return this.children.get(x);
 		}
 		else {
