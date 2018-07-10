@@ -14,6 +14,8 @@ import java.util.ArrayList;
 //import Levels.Background;
 //import Levels.Ground;
 import Levels.Level1;
+import Levels.Level2;
+import Levels.Level3;
 import Sprites.Coin;
 //import Sprites.Mario;
 import Sprites.Platform;
@@ -41,9 +43,11 @@ import edu.virginia.engine.events.ProjectileEvent;
 import edu.virginia.engine.sound.SoundManager;
 
 public class Prototype extends Game {
-	Tank tank1 = new Tank("tank1", "Tank2.png", 2);
-	Tank tank2 = new Tank("tank2","Tank1.png",1);
-	Level1 lv = new Level1("lv1",1);
+	Tank tank1 = new Tank("tank1", "Tank3.png", 3);
+	Tank tank2 = new Tank("tank2","Tank2.png",2);
+	//Level1 lv = new Level1("lv1", "Background_field.png", 2);
+	//Level2 lv = new Level2("lv2", "Background_desert.png", 2);
+	Level3 lv = new Level3("lv3", "Background_winternight.png", 2);
 	SoundManager SM = new SoundManager();
 	TweenJuggler TJ = new TweenJuggler();
 	Platform p1 = new Platform("p1");
@@ -63,12 +67,13 @@ public class Prototype extends Game {
 	double velocity = 25.0;
 	double angle = 90.0;
 	int player = 0;
-	int weapon = 0;
+	int weapon = 1;
 	int Switch_count = 19;
 	
 	ArrayList<DisplayObject> PlayerSelect = Tanks.getChildren();
 	public Prototype() {
-		super("Prototype", 1500, 1100);
+		//super("Prototype", 1500, 1100);
+		super("Prototype", 1500, 700);
 		this.setDisplay();
 		this.Scale();
 		this.Position();
@@ -282,7 +287,13 @@ public class Prototype extends Game {
 	}
 	@Override
 	public void setDisplay() {
-		this.addChild(lv);
+		this.addChild(lv.getBackground());
+		for(int i = 0; i < lv.getNumPlatforms(); i++) {
+			this.addChild(lv.getPlatform(i));
+		}
+		for(int i = 0; i < lv.getNumDestructables(); i++) {
+			this.addChild(lv.getDestructable(i));
+		}
 		this.addChild(Tanks);
 		Tanks.addChild(tank1);
 		Tanks.addChild(tank2);
@@ -293,12 +304,13 @@ public class Prototype extends Game {
 //		this.addChild(EXP);
 	}
 	public void Scale() {
-		tank1.setScale(1.00);
+		tank1.setScale(0.6);
+		tank2.setScale(0.6);
 		p1.setScaleX(5.0);
 	}
 	public void Position() {
-		tank1.setPosition(400,500);
-		tank2.setPosition(600, 500);
+		tank1.setPosition(lv.getSpawnPoint());
+		tank2.setPosition(lv.getSpawnPoint());
 		p1.setPosition(0, 750);
 	}
 	@Override
