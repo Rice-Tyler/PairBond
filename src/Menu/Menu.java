@@ -27,7 +27,7 @@ public class Menu extends DisplayObjectContainer{
 	public boolean getInStart() {
 		return this.inStart;
 	}
-	public void setStart(boolean b) {
+	public void setInStart(boolean b) {
 		this.inStart = b;
 	}
 	public boolean getPlayerSelect() {

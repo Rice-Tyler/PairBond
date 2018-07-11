@@ -14,6 +14,7 @@ import java.util.ArrayList;
 //import Levels.Background;
 //import Levels.Ground;
 import Menu.Menu;
+import Levels.Level;
 import Levels.Level1;
 import Levels.Level2;
 import Levels.Level3;
@@ -44,12 +45,15 @@ import edu.virginia.engine.events.ProjectileEvent;
 import edu.virginia.engine.sound.SoundManager;
 
 public class Prototype extends Game {
-	Tank tank1 = new Tank("tank1", "Tank3.png", 3);
-	Tank tank2 = new Tank("tank2","Tank2.png",2);
+	Tank tank1 = new Tank("tank1", "Tank1.png", 1);
+	Tank tank2 = new Tank("tank2","Tank2.png", 2);
+	Tank tank3 = new Tank("tank2","Tank3.png", 3);
+	Tank tank4 = new Tank("tank4","Tank4.png", 4);
 	Menu startMenu = new Menu("menu");
 	//Level1 lv = new Level1("lv1", "Background_field.png", 2);
-	Level2 lv = new Level2("lv2", "Background_desert.png", 2);
+	//Level2 lv = new Level2("lv2", "Background_desert.png", 2);
 	//Level3 lv = new Level3("lv3", "Background_winternight.png", 2);
+	Level lv;
 	SoundManager SM = new SoundManager();
 	TweenJuggler TJ = new TweenJuggler();
 	Platform p1 = new Platform("p1");
@@ -311,8 +315,53 @@ public class Prototype extends Game {
 				this.startMenu.setLevel(3);
 			}
 			if(pressedKeys.contains(KeyEvent.VK_ENTER) && this.startMenu.getPlayerSelect()) {
-				
-			}
+				switch (this.startMenu.getLevel()) {
+				case 1:
+					lv = new Level1("lv1", "Background_field.png", this.startMenu.getNumPlayers());
+					break;
+				case 2:
+					lv = new Level2("lv2", "Background_desert.png", this.startMenu.getNumPlayers());
+					break;
+				default:
+					lv = new Level3("lv3", "Background_winternight.png", this.startMenu.getNumPlayers());
+				}
+				this.addChild(lv.getBackground());
+				for(int i = 0; i < lv.getNumPlatforms(); i++) {
+					this.addChild(lv.getPlatform(i));
+				}
+				for(int i = 0; i < lv.getNumDestructables(); i++) {
+					this.addChild(lv.getDestructable(i));
+				}
+				this.addChild(Tanks);
+				String bleh = "tank";
+				for(int y = 0; y < this.startMenu.getNumPlayers(); y++) {
+					Tank temp;
+					switch (y) {
+					case 0:
+						tank1.setScale(0.6);
+						tank1.setPosition(lv.getSpawnPoint());
+						Tanks.addChild(tank1);
+						break;
+					case 1:
+						tank2.setScale(0.6);
+						tank2.setPosition(lv.getSpawnPoint());
+						Tanks.addChild(tank2);
+						break;
+					case 2:
+						tank3.setScale(0.6);
+						tank3.setPosition(lv.getSpawnPoint());
+						Tanks.addChild(tank3);
+						break;
+					case 3:
+						tank4.setScale(0.6);
+						tank4.setPosition(lv.getSpawnPoint());
+						Tanks.addChild(tank4);
+						break;
+					}
+				}
+				this.addChild(Proj);
+				this.startMenu.setInStart(false);
+			}	
 		}
 	}
 	@Override 
@@ -408,22 +457,6 @@ public class Prototype extends Game {
 			for(int i = 0; i<EXP.getChildren().size();i++) {
 				g2.setColor(Color.RED);
 				g2.draw(EXP.getChild(i).getGlobalHitbox());
-				
-				/*g.setColor(Color.WHITE);
-				
-				if(this.startMenu.getLevel() == 1) g.setColor(Color.YELLOW);
-				g.drawString("Press f for the Field level", 100, 450);
-				g.setColor(Color.WHITE);
-				if(this.startMenu.getLevel() == 2) g.setColor(Color.YELLOW);
-				g.drawString("Press d for the Desert level", 520, 450);
-				g.setColor(Color.WHITE);
-				if(this.startMenu.getLevel() == 3) g.setColor(Color.YELLOW);
-				g.drawString("Press w for the Winter level", 900, 450);
-				
-
-				g.setColor(Color.WHITE);
-				
-				g.drawString("Press Enter to start the game", 525, 600);*/
 			}
 		}
 	}
