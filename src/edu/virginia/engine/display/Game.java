@@ -27,7 +27,7 @@ import edu.virginia.engine.events.IEventListener;
 public class Game extends DisplayObjectContainer implements ActionListener, KeyListener, IEventListener {
 
 	/* Frames per second this game runs at */
-	private int FRAMES_PER_SEC = 30;
+	private int FRAMES_PER_SEC = 40;
 
 	/* The main JFrame that holds this game */
 	private JFrame mainFrame;

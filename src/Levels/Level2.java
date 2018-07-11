@@ -20,9 +20,9 @@ public class Level2 extends Level {
 		this.addSpawnPoint(p1);
 		Point p2 = new Point(890, 300);
 		this.addSpawnPoint(p2);
-		Point p3 = new Point(250, 300);
+		Point p3 = new Point(250, 600);
 		this.addSpawnPoint(p3);
-		Point p4 = new Point(950, 300);
+		Point p4 = new Point(950, 600);
 		this.addSpawnPoint(p4);
 	}
 //	public Level1(String id, String filename) {

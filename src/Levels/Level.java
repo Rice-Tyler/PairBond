@@ -31,6 +31,15 @@ public class Level extends DisplayObjectContainer {
 		numPlatforms++;
 	}
 	
+	public void addPlatform(int x, int y, double scale, double rotation, String id, String filename) {
+		DisplayObject platform = new DisplayObject(id, filename);
+		platform.setPosition(x, y);
+		platform.setScale(scale);
+		platform.setRotation(rotation);
+		platforms.add(platform);
+		numPlatforms++;
+	}
+	
 	public void addDestructable(int x, int y, double scale, String id, String filename) {
 		DisplayObject destructable = new DisplayObject(id, filename);
 		destructable.setPosition(x, y);

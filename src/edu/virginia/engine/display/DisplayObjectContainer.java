@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class DisplayObjectContainer extends DisplayObject {
 	ArrayList<DisplayObject> children = new ArrayList<DisplayObject>();
-	Integer num_children = 0;
+	public Integer num_children = 0;
 
 	public DisplayObjectContainer(String id, String fileName) {
 		super(id, fileName);

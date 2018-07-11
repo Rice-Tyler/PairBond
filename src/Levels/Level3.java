@@ -16,6 +16,10 @@ public class Level3 extends Level {
 		this.addPlatform(700, 600, 0.5, "platform3", "Platform_Ice1.png");
 		this.addPlatform(1050, 600, 0.5, "platform4", "Platform_Ice1.png");
 		
+		this.addPlatform(260, 600, 0.3, Math.toRadians(270), "bridge4", "Platform_IceBridge.png");
+		this.addPlatform(610, 600, 0.3, Math.toRadians(270), "bridge5", "Platform_IceBridge.png");
+		this.addPlatform(960, 600, 0.3, Math.toRadians(270), "bridge6", "Platform_IceBridge.png");
+		
 		int xOffset = 0;
 		for(int i = 0; i < 10; i++) {
 			this.addDestructable(xOffset, 0, 1, "iceBlock", "Platform_IceBlock.png");
