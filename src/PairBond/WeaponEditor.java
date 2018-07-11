@@ -4,6 +4,7 @@ package PairBond;
 import java.awt.Color;
 import java.awt.Font;
 //import java.awt.Font;
+import java.awt.geom.Ellipse2D;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -18,6 +19,7 @@ import Sprites.Coin;
 import Sprites.Mario;
 import Sprites.Platform;
 import Sprites.Tank;
+import Sprites.Tankgun;
 import edu.virginia.engine.animation.Tween;
 import edu.virginia.engine.animation.TweenJuggler;
 //import edu.virginia.engine.animation.TweenTransitions;
@@ -89,6 +91,8 @@ public class WeaponEditor extends Game {
 		this.addEventListener(this, PlayerEvent.FIRE);
 		this.addEventListener(this, PlayerEvent.TURN_END);
 		tank1.addEventListener(this, CollisionEvent.COLLISION);
+		WeaponSelect.add("none");
+		SM.loadSoundEffect("fire","resources/firing2.wav");
 		File dir = new File("weapons/");
 		File[] filesList = dir.listFiles();
 		for (File file : filesList) {
@@ -112,11 +116,12 @@ public class WeaponEditor extends Game {
 		File[] filesList = dir.listFiles();
 		for (File file : filesList) {
 		    if (file.isFile()) {
-		        if(!WeaponSelect.contains(file)) {
+		        if(!WeaponSelect.contains(file.getName())) {
 		        	WeaponSelect.add(file.getName());
 		        }
 		    }
 		}
+		sub = WeaponSelect.get(weapon);
 		PlayerSelect = Tanks.getChildren();
 //		tank1.animate();
 		tank1.setxAcc(0);
@@ -161,7 +166,7 @@ public class WeaponEditor extends Game {
 				Switch_count = 0;
 			}
 		}
-		if(Switch_count >18) {
+		if(Switch_count >4) {
 			Switch = true;
 		}
 		else Switch_count++;
@@ -172,10 +177,14 @@ public class WeaponEditor extends Game {
 			}else if(Select == 1) {
 			} else if(Select == 2) {
 				radius+=1;
-			} else if(Select == 3) {
+			} else if(Select == 3 && Switch) {
 				damage++;
-			} else if(Select == 4) {
+				Switch_count = 2;
+				Switch = false;
+			} else if(Select == 4 && Switch) {
 				duration++;
+				Switch_count = 2;
+				Switch = false;
 			} else if(Select == 5) {
 				height++;
 			} else if(Select == 6) {
@@ -184,9 +193,15 @@ public class WeaponEditor extends Game {
 				fuse++;
 			} else if(Select == 8) {
 				spread+=.1;
-			} else if (Select ==9) {
-			} else if(Select == 10) {
+			} else if (Select ==9 && Switch) {
+				weapon= (weapon+1)%WeaponSelect.size();
+				System.out.println(WeaponSelect.size());
+				Switch_count = 0;
+				Switch = false;
+			} else if(Select == 10 && Switch) {
 				sub_num++;
+				Switch_count = 2;
+				Switch = false;
 			}
 		}
 		
@@ -195,10 +210,18 @@ public class WeaponEditor extends Game {
 			}else if(Select == 1) {
 			} else if(Select == 2) {
 				if(radius>0)radius-=1;
-			} else if(Select == 3) {
-				if(damage>0)damage--;
-			} else if(Select == 4) {
-				if(duration>0)duration--;
+			} else if(Select == 3 && Switch) {
+				if(damage>0) {
+					damage--;
+					Switch = false;
+					Switch_count = 2;
+				}
+			} else if(Select == 4 && Switch) {
+				if(duration>0) {
+					duration--;
+					Switch = false;
+					Switch_count = 2;
+				}
 			} else if(Select == 5) {
 				if(height>0)height--;
 			} else if(Select == 6) {
@@ -207,9 +230,14 @@ public class WeaponEditor extends Game {
 				if(fuse>0)fuse--;
 			} else if(Select == 8) {
 				if(spread>0)spread-=.1;
-			} else if (Select ==9) {
-			} else if(Select == 10) {
+			} else if (Select ==9 && Switch) {
+				weapon = (weapon-1)%WeaponSelect.size();
+				Switch = false;
+				Switch_count = 2;
+			} else if(Select == 10 && Switch) {
 				if(sub_num>0)sub_num--;
+				Switch = false;
+				Switch_count = 2;
 			}
 		}
 
@@ -319,6 +347,12 @@ public class WeaponEditor extends Game {
 				
 			}
 		}
+		DisplayObject barrel = tank1.getChild(0);
+		Point bp = barrel.getPosition();
+		bp = new Point((int)bp.getX(),(int)bp.getY());
+		Point Barrelpoint = barrel.localToGlobal(bp);
+		g2.setColor(Color.RED);
+		g2.draw(new Ellipse2D.Double(Barrelpoint.x-7,Barrelpoint.y+40,10.0,10.0));
 		
 	}
 	@Override
@@ -384,12 +418,17 @@ public class WeaponEditor extends Game {
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_FIRED) {
 			System.out.println("fire"); 
 			Projectile f1 = new Projectile("f1", "proj.png", "Round", radius, damage, duration, height, width, fuse, spread,sub);
+			for(int x = 0; x<sub_num;x++) {
+				Projectile p = Projectile.loadProjectile(String.format("s%d",x),sub);
+				f1.addSubmunition(p);
+			}
 			Tank t1 = (Tank)PlayerSelect.get(player);
 
 			DisplayObject barrel = t1.getChild(0);
 			Point Barrelpoint = barrel.localToGlobal(barrel.getPosition());
-			f1.setPosition(new Point(Barrelpoint.x,(int)(Barrelpoint.y-(barrel.getUnscaledHeight()*barrel.getScaleY()))));
-			
+			Barrelpoint = new Point(Barrelpoint.x-7,Barrelpoint.y+40);
+			f1.setPosition(Barrelpoint);
+			 
 			double rad = Math.toRadians(t1.angle);
 			int xv = (int)(velocity*Math.cos(rad));
 			int yv = -(int)(velocity*Math.sin(rad));
@@ -398,6 +437,7 @@ public class WeaponEditor extends Game {
 			f1.push_force(xv,yv);
 			this.addEventListener(f1, ProjectileEvent.PROJECTILE_EXPLODE);
 			Proj.addChild(f1);
+			SM.playSoundEffect("fire");
 			this.dispatchEvent(new PlayerEvent(this,PlayerEvent.FIRE));
 			
 		}

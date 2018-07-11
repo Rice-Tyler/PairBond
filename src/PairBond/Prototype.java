@@ -73,7 +73,7 @@ public class Prototype extends Game {
 	ArrayList<DisplayObject> PlayerSelect = Tanks.getChildren();
 	public Prototype() {
 		//super("Prototype", 1500, 1100);
-		super("Prototype", 1500, 700);
+		super("Prototype", 1250, 875); 
 		this.setDisplay();
 		this.Scale();
 		this.Position();
@@ -263,9 +263,7 @@ public class Prototype extends Game {
 			g.drawString(t2,1000,80);
 		}
 		Graphics2D g2 = (Graphics2D)g;
-		for(int i = 0;i<Proj.getChildren().size();i++) {
-			g2.draw(((Projectile)Proj.getChild(i)).getExp().getGlobalHitbox());
-		}
+		
 		g.setColor(Color.BLACK);
 		
 		g.setColor(Color.GREEN);
