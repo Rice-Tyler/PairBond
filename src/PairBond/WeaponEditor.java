@@ -11,10 +11,8 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.ArrayList;
-
 import javax.swing.JButton;
 import javax.swing.JPanel;
-
 import Sprites.Coin;
 import Sprites.Mario;
 import Sprites.Platform;
@@ -53,6 +51,8 @@ public class WeaponEditor extends Game {
 	/* Container to hold Explosion Hitboxes*/
 	DisplayObjectContainer EXP = new DisplayObjectContainer("EXP");
 	ArrayList<String> WeaponSelect = new ArrayList<String>();
+	ArrayList<String> ImageSelect = new ArrayList<String>();
+	ArrayList<String> BlastSelect = new ArrayList<String>();
 	boolean jump = false;
 	boolean Switch = true;
 	boolean fire = true;
@@ -63,20 +63,23 @@ public class WeaponEditor extends Game {
 	double angle = 90.0;
 	int player = 0;
 	int weapon = 0;
+	int Blast = 0;
+	int Image = 0;
 	int Switch_count = 19;
-	
 	/* Weapon Variables */
 	String imgName = "";
 	String BlastType = "";
-	Double radius = 0.0;
-	Integer damage = 0;
-	Integer duration = 0;
-	Integer height = 0;
-	Integer width = 0;
-	Integer fuse = 0;
+	Double radius = 10.0;
+	Integer damage = 1;
+	Integer duration = 10;
+	Integer height = 10;
+	Integer width = 10;
+	Integer fuse = 10;
 	Double spread = 0.0;
 	String sub = "none";
 	Integer sub_num = 0;
+	Double scalex = .10;
+	Double scaley = .10;
 	Integer Select = 0;
 	
 	ArrayList<DisplayObject> PlayerSelect = Tanks.getChildren();
@@ -92,6 +95,8 @@ public class WeaponEditor extends Game {
 		this.addEventListener(this, PlayerEvent.TURN_END);
 		tank1.addEventListener(this, CollisionEvent.COLLISION);
 		WeaponSelect.add("none");
+		BlastSelect.add("Round");
+		BlastSelect.add("Rect");
 		SM.loadSoundEffect("fire","resources/firing2.wav");
 		File dir = new File("weapons/");
 		File[] filesList = dir.listFiles();
@@ -99,6 +104,15 @@ public class WeaponEditor extends Game {
 		    if (file.isFile()) {
 		        if(!WeaponSelect.contains(file)) {
 		        	WeaponSelect.add(file.getName());
+		        }
+		    }
+		}
+		File Imgdir = new File("resources/weapons/");
+		File[] ImgList = Imgdir.listFiles();
+		for (File file : ImgList) {
+		    if (file.isFile()) {
+		        if(!ImageSelect.contains(file)) {
+		        	ImageSelect.add(file.getName());
 		        }
 		    }
 		}
@@ -122,6 +136,8 @@ public class WeaponEditor extends Game {
 		    }
 		}
 		sub = WeaponSelect.get(weapon);
+		imgName = ImageSelect.get(Image);
+		BlastType = BlastSelect.get(Blast);
 		PlayerSelect = Tanks.getChildren();
 //		tank1.animate();
 		tank1.setxAcc(0);
@@ -161,7 +177,13 @@ public class WeaponEditor extends Game {
 			if(pressedKeys.contains(KeyEvent.VK_A) && velocity < 50)velocity+=.5;
 			if(pressedKeys.contains(KeyEvent.VK_S) && velocity > 0  )velocity-=.5;
 			if(pressedKeys.contains(KeyEvent.VK_ENTER) && Switch) {
-				Select = (Select+1)%11;
+				Select = (Select+1)%13;
+				Switch = false;
+				Switch_count = 0;
+			}
+			if(pressedKeys.contains(KeyEvent.VK_SHIFT) && Switch) {
+				if(Select>0)Select = (Select-1)%13;
+				else Select = 12;
 				Switch = false;
 				Switch_count = 0;
 			}
@@ -173,8 +195,16 @@ public class WeaponEditor extends Game {
 		
 		/* Weapon Editor */
 		if(pressedKeys.contains(KeyEvent.VK_UP)){
-			if(Select == 0) {
-			}else if(Select == 1) {
+			if(Select == 0 && Switch) {
+				Image++;
+				Image%=ImageSelect.size();
+				Switch = false;
+				Switch_count = 0;
+			}else if(Select == 1 && Switch) {
+				Blast++;
+				Blast%=BlastSelect.size();
+				Switch = false;
+				Switch_count = 0;
 			} else if(Select == 2) {
 				radius+=1;
 			} else if(Select == 3 && Switch) {
@@ -202,12 +232,26 @@ public class WeaponEditor extends Game {
 				sub_num++;
 				Switch_count = 2;
 				Switch = false;
+			}else if(Select == 11 && Switch) {
+				scalex+=0.01;
+				Switch = false;
+				Switch_count = 2;
+			}else if(Select == 12 && Switch) {
+				scaley+=0.01;
+				Switch = false;
+				Switch_count = 2;
 			}
 		}
 		
 		if(pressedKeys.contains(KeyEvent.VK_DOWN)){
-			if(Select == 0) {
-			}else if(Select == 1) {
+			if(Select == 0 && Switch) {
+				if(Image>0)Image--;
+				Switch = false;
+				Switch_count = 0;
+			}else if(Select == 1 && Switch) {
+				if(Blast>0)Blast--;
+				Switch = false;
+				Switch_count = 0;
 			} else if(Select == 2) {
 				if(radius>0)radius-=1;
 			} else if(Select == 3 && Switch) {
@@ -236,6 +280,14 @@ public class WeaponEditor extends Game {
 				Switch_count = 2;
 			} else if(Select == 10 && Switch) {
 				if(sub_num>0)sub_num--;
+				Switch = false;
+				Switch_count = 2;
+			}else if(Select == 11 && Switch) {
+				if(scalex>0.001)scalex-=0.01;
+				Switch = false;
+				Switch_count = 2;
+			}else if(Select == 12 && Switch) {
+				if(scaley>0.001)scaley-=0.01;
 				Switch = false;
 				Switch_count = 2;
 			}
@@ -333,8 +385,6 @@ public class WeaponEditor extends Game {
 			g.setFont(new Font("TimesRoman", Font.PLAIN, 100));
 			g.drawString(t1,40,80);
 			g.drawString(t2,1100,80);
-			g.drawString(WeaponSelect.get(weapon), 500, 1000);
-			g.drawString(String.format("%d", Select+1),500,1100);
 			g.setFont(new Font("TimesRoman", Font.PLAIN, 50));
 			this.drawParams(g);
 		}
@@ -353,6 +403,9 @@ public class WeaponEditor extends Game {
 		Point Barrelpoint = barrel.localToGlobal(bp);
 		g2.setColor(Color.RED);
 		g2.draw(new Ellipse2D.Double(Barrelpoint.x-7,Barrelpoint.y+40,10.0,10.0));
+		for(int x = 0; x<Proj.getChildren().size();x++) {
+			g2.draw(Proj.getChild(x).getGlobalHitbox());
+		}
 		
 	}
 	@Override
@@ -417,7 +470,8 @@ public class WeaponEditor extends Game {
 		}
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_FIRED) {
 			System.out.println("fire"); 
-			Projectile f1 = new Projectile("f1", "proj.png", "Round", radius, damage, duration, height, width, fuse, spread,sub);
+			String ImgName = String.format("weapons/%s", imgName);
+			Projectile f1 = new Projectile("f1", ImgName, BlastType, radius, damage, duration, height, width, fuse, spread,sub,scalex,scaley);
 			for(int x = 0; x<sub_num;x++) {
 				Projectile p = Projectile.loadProjectile(String.format("s%d",x),sub);
 				f1.addSubmunition(p);
@@ -472,7 +526,7 @@ public class WeaponEditor extends Game {
 				Explosion exp = p.getExp();
 	//			Point pexp = localToGlobal(exp.getPosition,exp)
 //				if(exp.getPosition().x==0 && exp.getPosition().y==0)exp.setPosition(localToGlobal(p.getPosition(),p));
-				exp.setPosition(exp.localToGlobal(exp.getPosition()));
+				exp.setPosition(p.localToGlobal(p.getPosition()));
 				System.out.println(exp.getPosition());
 				EXP.addChild(exp);
 				Proj.removeChildById(e.getId());
@@ -498,6 +552,8 @@ public class WeaponEditor extends Game {
 	public void drawParams(Graphics g) {
 		int x = 1000;
 		int y = 200;
+		double sx = scalex*10;
+		double sy = scaley*10;
 		String v1 = String.format("1>Image: %s",imgName);
 		String v2 = String.format("2>BlastType: %s",BlastType);
 		String v3 = String.format("3>Blast Radius: %.2f", radius);
@@ -509,6 +565,8 @@ public class WeaponEditor extends Game {
 		String v9 = String.format("9>Spread Angle: %.2f", spread);
 		String v10 = String.format("10>Submunition: %s", sub);
 		String v11 = String.format("11># Submunition: %s", sub_num);
+		String v12 = String.format("12>ScaleX: %.2f", sx);
+		String v13 = String.format("13>ScaleY: %.2f", sy);
 		if(Select == 0) {
 			g.setColor(Color.GREEN);
 			g.drawString(v1, x, y);
@@ -523,6 +581,8 @@ public class WeaponEditor extends Game {
 			g.drawString(v9, x, y+400);
 			g.drawString(v10, x, y+450);
 			g.drawString(v11, x, y+500);
+			g.drawString(v12, x, y+550);
+			g.drawString(v13, x, y+600);
 		}else if(Select == 1) {
 			g.drawString(v1, x, y);
 			g.setColor(Color.GREEN);
@@ -537,6 +597,8 @@ public class WeaponEditor extends Game {
 			g.drawString(v9, x, y+400);
 			g.drawString(v10, x, y+450);
 			g.drawString(v11, x, y+500);
+			g.drawString(v12, x, y+550);
+			g.drawString(v13, x, y+600);
 		}else if(Select == 2) {
 			g.drawString(v1, x, y);
 			g.drawString(v2, x, y+50);
@@ -551,6 +613,8 @@ public class WeaponEditor extends Game {
 			g.drawString(v9, x, y+400);
 			g.drawString(v10, x, y+450);
 			g.drawString(v11, x, y+500);
+			g.drawString(v12, x, y+550);
+			g.drawString(v13, x, y+600);
 		}else if(Select == 3) {
 			g.drawString(v1, x, y);
 			g.drawString(v2, x, y+50);
@@ -565,6 +629,8 @@ public class WeaponEditor extends Game {
 			g.drawString(v9, x, y+400);
 			g.drawString(v10, x, y+450);
 			g.drawString(v11, x, y+500);
+			g.drawString(v12, x, y+550);
+			g.drawString(v13, x, y+600);
 		}else if(Select == 4) {
 			g.drawString(v1, x, y);
 			g.drawString(v2, x, y+50);
@@ -579,6 +645,8 @@ public class WeaponEditor extends Game {
 			g.drawString(v9, x, y+400);
 			g.drawString(v10, x, y+450);
 			g.drawString(v11, x, y+500);
+			g.drawString(v12, x, y+550);
+			g.drawString(v13, x, y+600);
 		}
 		else if(Select == 5) {
 			g.drawString(v1, x, y);
@@ -594,6 +662,8 @@ public class WeaponEditor extends Game {
 			g.drawString(v9, x, y+400);
 			g.drawString(v10, x, y+450);
 			g.drawString(v11, x, y+500);
+			g.drawString(v12, x, y+550);
+			g.drawString(v13, x, y+600);
 		} else if(Select == 6) {
 			g.drawString(v1, x, y);
 			g.drawString(v2, x, y+50);
@@ -608,6 +678,8 @@ public class WeaponEditor extends Game {
 			g.drawString(v9, x, y+400);
 			g.drawString(v10, x, y+450);
 			g.drawString(v11, x, y+500);
+			g.drawString(v12, x, y+550);
+			g.drawString(v13, x, y+600);
 		}else if(Select == 7) {
 			g.drawString(v1, x, y);
 			g.drawString(v2, x, y+50);
@@ -622,6 +694,8 @@ public class WeaponEditor extends Game {
 			g.drawString(v9, x, y+400);
 			g.drawString(v10, x, y+450);
 			g.drawString(v11, x, y+500);
+			g.drawString(v12, x, y+550);
+			g.drawString(v13, x, y+600);
 		} else if(Select == 8) {
 			g.drawString(v1, x, y);
 			g.drawString(v2, x, y+50);
@@ -636,6 +710,8 @@ public class WeaponEditor extends Game {
 			g.setColor(Color.BLACK);
 			g.drawString(v10, x, y+450);
 			g.drawString(v11, x, y+500);
+			g.drawString(v12, x, y+550);
+			g.drawString(v13, x, y+600);
 		} else if (Select ==9) {
 			g.drawString(v1, x, y);
 			g.drawString(v2, x, y+50);
@@ -650,6 +726,8 @@ public class WeaponEditor extends Game {
 			g.drawString(v10, x, y+450);
 			g.setColor(Color.BLACK);
 			g.drawString(v11, x, y+500);
+			g.drawString(v12, x, y+550);
+			g.drawString(v13, x, y+600);
 		} else if(Select == 10) {
 			g.drawString(v1, x, y);
 			g.drawString(v2, x, y+50);
@@ -663,6 +741,40 @@ public class WeaponEditor extends Game {
 			g.drawString(v10, x, y+450);
 			g.setColor(Color.GREEN);
 			g.drawString(v11, x, y+500);
+			g.setColor(Color.BLACK);
+			g.drawString(v12, x, y+550);
+			g.drawString(v13, x, y+600);
+		} else if(Select == 11) {
+			g.drawString(v1, x, y);
+			g.drawString(v2, x, y+50);
+			g.drawString(v3, x, y+100);
+			g.drawString(v4, x, y+150);
+			g.drawString(v5, x, y+200);
+			g.drawString(v6, x, y+250);
+			g.drawString(v7, x, y+300);
+			g.drawString(v8, x, y+350);
+			g.drawString(v9, x, y+400);
+			g.drawString(v10, x, y+450);
+			g.drawString(v11, x, y+500);
+			g.setColor(Color.GREEN);
+			g.drawString(v12, x, y+550);
+			g.setColor(Color.BLACK);
+			g.drawString(v13, x, y+600);
+		} else if(Select == 12) {
+			g.drawString(v1, x, y);
+			g.drawString(v2, x, y+50);
+			g.drawString(v3, x, y+100);
+			g.drawString(v4, x, y+150);
+			g.drawString(v5, x, y+200);
+			g.drawString(v6, x, y+250);
+			g.drawString(v7, x, y+300);
+			g.drawString(v8, x, y+350);
+			g.drawString(v9, x, y+400);
+			g.drawString(v10, x, y+450);
+			g.drawString(v11, x, y+500);
+			g.drawString(v12, x, y+550);
+			g.setColor(Color.GREEN);
+			g.drawString(v13, x, y+600);
 			g.setColor(Color.BLACK);
 		}
 	}

@@ -24,7 +24,7 @@ public class Projectile extends Sprite implements IEventListener {
 	private String img = "";
 	
 	private ArrayList<Projectile> submunition = new ArrayList<Projectile>();
-	public Projectile(String id,String filename,String blastType,Double diameter,int damage,int duration,int height,int width,int fuse, Double spread,String sub) {
+	public Projectile(String id,String filename,String blastType,Double diameter,int damage,int duration,int height,int width,int fuse, Double spread,String sub,double scalex, double scaley) {
 		super(id,filename);
 		this.img = filename;
 		this.blastType = blastType;
@@ -33,7 +33,8 @@ public class Projectile extends Sprite implements IEventListener {
 		this.spread=spread;
 		this.sub = sub;
 		this.exp=new Explosion(this.getId(),damage,duration,blastType,diameter,height,width);
-		this.setScale(.1);
+		this.setScaleX(scalex);
+		this.setScaleY(scaley);
 		this.setSolid(false);
 		this.setNormalUp(false);
 		this.setMass(1.0);
@@ -124,6 +125,8 @@ public class Projectile extends Sprite implements IEventListener {
 		String sub = "none";
 		Integer sub_num = 0;
 		String img = "proj.png";
+		Double scalex = 1.0;
+		Double scaley = 1.0;
 		try {
 			String f = String.format("weapons/%s", filename);
 			File file = new File(f);
@@ -181,6 +184,14 @@ public class Projectile extends Sprite implements IEventListener {
 			sub_num = Integer.valueOf(line);
 			System.out.println(sub_num);
 			
+			line = br.readLine();
+			scalex = Double.valueOf(line);
+			System.out.println(scalex);
+			
+			line = br.readLine();
+			scaley = Double.valueOf(line);
+			System.out.println(scaley);
+			
             br.close(); 
 			
 		}
@@ -194,7 +205,8 @@ public class Projectile extends Sprite implements IEventListener {
                 "Error reading file '" 
                 + filename + "'");                  
         }
-		Projectile p = new Projectile(id, img, blastType, r, damage, duration, height, width, fuse, spread,sub);
+		img = String.format("weapons/%s", img);
+		Projectile p = new Projectile(id, img, blastType, r, damage, duration, height, width, fuse, spread,sub,scalex,scaley);
 //		
 		if(!sub.equals("none")) {
 			for(int x =0;x<sub_num;x++) {

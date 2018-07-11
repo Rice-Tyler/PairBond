@@ -111,6 +111,7 @@ public class DisplayObjectContainer extends DisplayObject {
 	
 	public DisplayObject getChild(int x) {
 		if(x<this.getChildren().size()) {
+			if(x<0)x=0;
 			return this.children.get(x);
 		}
 		else {
