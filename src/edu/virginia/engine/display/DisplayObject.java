@@ -87,6 +87,9 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 	public void setVisible(boolean visible) {
 		Visible = visible;
 	}
+	public boolean getVisible() {
+		return this.Visible;
+	}
 
 	public void setRotation(Double rotation) {
 		this.rotation = rotation;
