@@ -19,7 +19,7 @@ public class Tank extends Sprite {
 			this.setPivotPoint(-50,-50);
 			Tankgun gun1 = new Tankgun("gun1", "Gun1.png");
 			gun1.setScale(0.8);
-			gun1.setScaleY(1.3);
+			gun1.setScaleY(1.4);
 			gun1.setPosition(10, -40);
 			gun1.setPivotPoint(-5, -50);
 			this.addChild(gun1);

@@ -75,7 +75,7 @@ public class Prototype extends Game {
 	ArrayList<DisplayObject> PlayerSelect = Tanks.getChildren();
 	public Prototype() {
 		//super("Prototype", 1500, 1100);
-		super("Prototype", 1500, 700);
+		super("Prototype", 1250, 875); 
 		this.setDisplay();
 		this.Scale();
 		this.Position();
@@ -383,6 +383,31 @@ public class Prototype extends Game {
 				if(this.startMenu.getNumPlayers() == 4) g.setColor(Color.YELLOW);
 				g.drawString("Press 4 for four Players", 900, 300);
 				
+
+				if(this.startMenu.getLevel() == 1) g.setColor(Color.YELLOW);
+				g.drawString("Press F for Field Level", 100, 450);
+				g.setColor(Color.WHITE);
+				if(this.startMenu.getLevel() == 2) g.setColor(Color.YELLOW);
+				g.drawString("Press D for Desert level", 550, 450);
+				g.setColor(Color.WHITE);
+				if(this.startMenu.getLevel() == 3) g.setColor(Color.YELLOW);
+				g.drawString("Press W for Winter Level", 900, 450);
+				g.setColor(Color.WHITE);
+				g.drawString("Press Enter to start the Game", 450, 600);
+			//g.drawString(t2,1000,80);
+		}
+		Graphics2D g2 = (Graphics2D)g;
+		
+		g.setColor(Color.BLACK);
+		
+		g.setColor(Color.GREEN);
+		if(WeaponSelect!=null)g.drawString(WeaponSelect.get(weapon), 500, 800);
+		
+		if(EXP!=null) {
+			for(int i = 0; i<EXP.getChildren().size();i++) {
+				g2.setColor(Color.RED);
+				g2.draw(EXP.getChild(i).getGlobalHitbox());
+				
 				g.setColor(Color.WHITE);
 				
 				if(this.startMenu.getLevel() == 1) g.setColor(Color.YELLOW);
@@ -400,6 +425,7 @@ public class Prototype extends Game {
 				g.drawString("Press Enter to start the game", 525, 600);
 			}
 		}
+	}
 	}
 	@Override
 	public void setDisplay() {
