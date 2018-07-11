@@ -40,15 +40,16 @@ import edu.virginia.engine.events.Event;
 import edu.virginia.engine.events.GameEvent;
 import edu.virginia.engine.events.PlayerEvent;
 import edu.virginia.engine.events.ProjectileEvent;
+import edu.virginia.engine.events.TankEvent;
 //import edu.virginia.engine.events.SoundEvent;
 //import edu.virginia.engine.events.TweenEvent;
 import edu.virginia.engine.sound.SoundManager;
 
 public class Prototype extends Game {
-	Tank tank1 = new Tank("tank1", "Tank1.png", 1);
-	Tank tank2 = new Tank("tank2","Tank2.png", 2);
-	Tank tank3 = new Tank("tank2","Tank3.png", 3);
-	Tank tank4 = new Tank("tank4","Tank4.png", 4);
+	Tank tank1 = new Tank("Tank1", "Tank1.png", 1);
+	Tank tank2 = new Tank("Tank2","Tank2.png", 2);
+	Tank tank3 = new Tank("Tank3","Tank3.png", 3);
+	Tank tank4 = new Tank("Tank4","Tank4.png", 4);
 	Menu startMenu = new Menu("menu");
 	//Level1 lv = new Level1("lv1", "Background_field.png", 2);
 	//Level2 lv = new Level2("lv2", "Background_desert.png", 2);
@@ -75,6 +76,8 @@ public class Prototype extends Game {
 	int player = 0;
 	int weapon = 1;
 	int Switch_count = 19;
+	boolean end = false;
+	String Winner ="";
 	
 	ArrayList<DisplayObject> PlayerSelect = Tanks.getChildren();
 	public Prototype() {
@@ -89,6 +92,9 @@ public class Prototype extends Game {
 		this.addEventListener(this, PlayerEvent.FIRE);
 		this.addEventListener(this, PlayerEvent.TURN_END);
 		this.addEventListener(this, GameEvent.GAME_OVER);
+		this.addEventListener(this, TankEvent.EXPLODE);
+		SM.loadSoundEffect("fire", "resources/firing2.wav");
+		SM.loadSoundEffect("explode", "resources/blast0.wav");
 		for(int x = 0; x<Tanks.getChildren().size();x++) {
 			Tanks.getChild(x).addEventListener(this, CollisionEvent.COLLISION);
 		}
@@ -101,7 +107,7 @@ public class Prototype extends Game {
 		        }
 		    }
 		}
-		tank1.setyMax(100);
+//		tank1.setyMax(100);
 		
 //		 SM.loadSoundEffect("jump", "resources/jump.wav");
 //		SM.loadMusic("music","resources/mario_music.wav");
@@ -119,11 +125,7 @@ public class Prototype extends Game {
 			Point p = tank1.getPosition();
 			
 			for(int x = 0; x<Proj.getChildren().size();x++) {
-	//			System.out.println("p");
 				DisplayObject P = Proj.getChild(x);
-	//			P.gravity();
-	//			System.out.printf("x: %d, %d \n",P.getPosition().x,P.getxVelocity());
-	//			System.out.printf("y: %d, %d \n",P.getPosition().y,P.getyVelocity());
 				P.move();
 				if(P instanceof AnimatedSprite) {
 					((AnimatedSprite)P).animate();
@@ -178,7 +180,7 @@ public class Prototype extends Game {
 				fire = true;
 	//			System.out.println("f");
 			}
-			for(int r = 0; r<this.Tanks.num_children; r++) {
+			for(int r = 0; r<this.Tanks.getChildren().size(); r++) {
 				for(int q = 0; q<lv.getNumPlatforms(); q++) {
 					//Tanks.getChild(r).setNormalUp(false);
 					//boolean check = false;
@@ -201,12 +203,8 @@ public class Prototype extends Game {
 				}
 			}
 			for(int x = 0; x<Proj.getChildren().size();x++) {
-	//			System.out.println("p");
 				Projectile P = (Projectile)Proj.getChild(x);
 				P.gravity();
-	//			System.out.printf("%s: %s \n", P.getId(), P.getPosition());
-	//			System.out.printf("%s:: x: %d, %d  ",P.getId(), P.getxVelocity(),P.getxAcc());
-	//			System.out.printf("y: %d, %d \n",P.getyVelocity(),P.getyAcc());
 				P.move();
 				double xvel = P.getxVelocity();
 				double yvel = P.getyVelocity();
@@ -245,21 +243,22 @@ public class Prototype extends Game {
 				}
 			}
 			for(int j =0;j<PlayerSelect.size();j++) {
-				Tank t1 = (Tank)PlayerSelect.get(j);
-				//t1.gravity();
-				t1.onGround = false;
-				t1.move = false;
-				if(!t1.move)t1.xfriction();
-				if(t1.onGround) {
-					t1.setPosition(new Point(p.x,(int)Math.floor((930-(t1.getUnscaledHeight()*t1.getScaleY())))));
-					t1.setNormalUp(true);
+				Tank t = (Tank)PlayerSelect.get(j);
+				t.gravity();
+//				System.out.printf("%s, yA:%d yV:%d \n", t.getId(),t.getyAcc(),t.getyVelocity());
+				t.onGround = false;
+				t.move = false;
+				if(!t.move)t.xfriction();
+				if(t.onGround) {
+					t.setPosition(new Point(p.x,(int)Math.floor((930-(t.getUnscaledHeight()*t.getScaleY())))));
+					t.setNormalUp(true);
 					jump = true;
 				}
-				t1.move();
+				t.move();
 				for(int x = 0;x<lv.getChildren().size();x++) {
 					DisplayObject c = lv.getChild(x);
-					if(t1.collidesWith(c)) {
-	//				t1.dispatchEvent(new CollisionEvent(CollisionEvent.COLLISION,t1,c));
+					if(t.collidesWith(c)) {
+	//				t.dispatchEvent(new CollisionEvent(CollisionEvent.COLLISION,t,c));
 					}
 				}
 			}
@@ -273,7 +272,8 @@ public class Prototype extends Game {
 	//					System.out.println(e.getDamage());
 						t.decreaseHealth(e.getDamage());
 						if(t.getHealth()<0) {
-							this.dispatchEvent(new GameEvent(GameEvent.GAME_OVER,this));
+							this.dispatchEvent(new TankEvent(TankEvent.EXPLODE,this,t));
+							y--;
 						}
 	//					System.out.printf("%s:%d \n",t.getId(),t.getHealth());
 					}
@@ -314,7 +314,7 @@ public class Prototype extends Game {
 			if(pressedKeys.contains(KeyEvent.VK_W) && this.startMenu.getPlayerSelect()) {
 				this.startMenu.setLevel(3);
 			}
-			if(pressedKeys.contains(KeyEvent.VK_ENTER) && this.startMenu.getPlayerSelect()) {
+ 			if(pressedKeys.contains(KeyEvent.VK_ENTER) && this.startMenu.getPlayerSelect()) {
 				switch (this.startMenu.getLevel()) {
 				case 1:
 					lv = new Level1("lv1", "Background_field.png", this.startMenu.getNumPlayers());
@@ -363,88 +363,101 @@ public class Prototype extends Game {
 				this.startMenu.setInStart(false);
 			}	
 		}
+		if(Tanks.getChildren().size()==1) {
+			Winner = Tanks.getChild(0).getId();
+			end = true;
+		}
 	}
 	@Override 
 	public void draw(Graphics g) {
 		if(this!=null)super.draw(g);
-		if(!this.startMenu.getInStart()) {
-			g.setFont(new Font("TimesRoman", Font.PLAIN, 100));
-			if(tank1!=null) {
+		if(startMenu!=null) {
+			if(!this.startMenu.getInStart()) {
+				g.setFont(new Font("TimesRoman", Font.PLAIN, 100));
+				if(tank1!=null) {
+					g.setColor(Color.WHITE);
+					String t1 = String.format("%d / 100", tank1.getHealth());
+					if(tank1.getHealth()<50)g.setColor(Color.YELLOW);
+					if(tank1.getHealth()<25)g.setColor(Color.RED);
+					g.drawString(t1,0,80);
+				}
+				if(tank2!=null) {
+					g.setColor(Color.WHITE);
+					if(tank2.getHealth()<50)g.setColor(Color.YELLOW);
+					if(tank2.getHealth()<25)g.setColor(Color.RED);
+					String t2 = String.format("%d / 100", tank2.getHealth());
+					
+					g.drawString(t2,850,80);
+				}
+				if(tank3!=null && Tanks.contains(tank3)) {
+					g.setColor(Color.WHITE);
+					if(tank3.getHealth()<50)g.setColor(Color.YELLOW);
+					if(tank3.getHealth()<25)g.setColor(Color.RED);
+					String t3 = String.format("%d / 100", tank3.getHealth());
+					g.drawString(t3,0,800);
+				}
+				if(tank4!=null && Tanks.contains(tank4)) {
+					g.setColor(Color.WHITE);
+					if(tank4.getHealth()<50)g.setColor(Color.YELLOW);
+					if(tank4.getHealth()<25)g.setColor(Color.RED);
+					String t4 = String.format("%d / 100", tank4.getHealth());
+					g.drawString(t4,850,800);
+				}
+				Graphics2D g2 = (Graphics2D)g;
+				for(int i = 0;i<Proj.getChildren().size();i++) {
+					g2.draw(((Projectile)Proj.getChild(i)).getExp().getGlobalHitbox());
+				}
 				g.setColor(Color.BLACK);
-				String t1 = String.format("%d / 100", tank1.getHealth());
-				if(tank1.getHealth()<50)g.setColor(Color.YELLOW);
-				if(tank1.getHealth()<25)g.setColor(Color.RED);
-				g.drawString(t1,40,80);
-			}
-			if(tank2!=null) {
-				g.setColor(Color.BLACK);
-				if(tank2.getHealth()<50)g.setColor(Color.YELLOW);
-				if(tank2.getHealth()<25)g.setColor(Color.RED);
-				String t2 = String.format("%d / 100", tank2.getHealth());
 				
-				g.drawString(t2,1000,80);
-			}
-			Graphics2D g2 = (Graphics2D)g;
-			for(int i = 0;i<Proj.getChildren().size();i++) {
-				g2.draw(((Projectile)Proj.getChild(i)).getExp().getGlobalHitbox());
-			}
-			g.setColor(Color.BLACK);
-			
-			g.setColor(Color.GREEN);
-			if(WeaponSelect!=null)g.drawString(WeaponSelect.get(weapon), 500, 800);
-			
-			if(EXP!=null) {
-				for(int i = 0; i<EXP.getChildren().size();i++) {
-					g2.setColor(Color.RED);
-					g2.draw(EXP.getChild(i).getGlobalHitbox());
+				g.setColor(Color.GREEN);
+				if(WeaponSelect!=null)g.drawString(WeaponSelect.get(weapon), 500, 800);
+				
+				if(EXP!=null) {
+					for(int i = 0; i<EXP.getChildren().size();i++) {
+						g2.setColor(Color.RED);
+						g2.draw(EXP.getChild(i).getGlobalHitbox());
+					}
 					
 				}
-				
-			}
-	//		g2.draw(tank1.getGlobalHitbox());
-	//		Tank currTank = (Tank) Tanks.getChild((player+1)%2);
-	//		if(currTank.getHealth() < 0) {
-	//			g2.drawString("Game Over", 300, 200);
-	//			this.pause();
-	//		}
-		}
-		else {
-			if(!this.startMenu.getPlayerSelect()) {
-				g.setFont(new Font("TimesRoman", Font.PLAIN, 100));
-				g.setColor(Color.BLACK);
-				String t1 = String.format("Tank Battle");
-				g.drawString(t1, 500, 200);
-				g.setFont(new Font("TimesRoman", Font.PLAIN, 50));
-				g.drawString("--Press space to continue--", 475, 300);
 			}
 			else {
-				g.setFont(new Font("TimesRoman", Font.PLAIN, 100));
-				g.setColor(Color.WHITE);
-				String t1 = String.format("Tank Battle");
-				g.drawString(t1, 500, 200);
-				g.setFont(new Font("TimesRoman", Font.PLAIN, 30));
-				if(this.startMenu.getNumPlayers() == 2) g.setColor(Color.YELLOW);
-				g.drawString("Press 2 for two Players", 100, 300);
-				g.setColor(Color.WHITE);
-				if(this.startMenu.getNumPlayers() == 3) g.setColor(Color.YELLOW);
-				g.drawString("Press 3 for three Players", 550, 300);
-				g.setColor(Color.WHITE);
-				if(this.startMenu.getNumPlayers() == 4) g.setColor(Color.YELLOW);
-				g.drawString("Press 4 for four Players", 900, 300);
-				g.setColor(Color.WHITE);
-				
-
-				if(this.startMenu.getLevel() == 1) g.setColor(Color.YELLOW);
-				g.drawString("Press F for Field Level", 100, 450);
-				g.setColor(Color.WHITE);
-				if(this.startMenu.getLevel() == 2) g.setColor(Color.YELLOW);
-				g.drawString("Press D for Desert level", 550, 450);
-				g.setColor(Color.WHITE);
-				if(this.startMenu.getLevel() == 3) g.setColor(Color.YELLOW);
-				g.drawString("Press W for Winter Level", 900, 450);
-				g.setColor(Color.WHITE);
-				g.drawString("Press Enter to start the Game", 450, 600);
-			//g.drawString(t2,1000,80);
+				if(!this.startMenu.getPlayerSelect()) {
+					g.setFont(new Font("TimesRoman", Font.PLAIN, 100));
+					g.setColor(Color.BLACK);
+					String t1 = String.format("Tank Battle");
+					g.drawString(t1, 500, 200);
+					g.setFont(new Font("TimesRoman", Font.PLAIN, 50));
+					g.drawString("--Press space to continue--", 475, 300);
+				}
+				else {
+					g.setFont(new Font("TimesRoman", Font.PLAIN, 100));
+					g.setColor(Color.WHITE);
+					String t1 = String.format("Tank Battle");
+					g.drawString(t1, 500, 200);
+					g.setFont(new Font("TimesRoman", Font.PLAIN, 30));
+					if(this.startMenu.getNumPlayers() == 2) g.setColor(Color.YELLOW);
+					g.drawString("Press 2 for two Players", 100, 300);
+					g.setColor(Color.WHITE);
+					if(this.startMenu.getNumPlayers() == 3) g.setColor(Color.YELLOW);
+					g.drawString("Press 3 for three Players", 550, 300);
+					g.setColor(Color.WHITE);
+					if(this.startMenu.getNumPlayers() == 4) g.setColor(Color.YELLOW);
+					g.drawString("Press 4 for four Players", 900, 300);
+					g.setColor(Color.WHITE);
+					
+	
+					if(this.startMenu.getLevel() == 1) g.setColor(Color.YELLOW);
+					g.drawString("Press F for Field Level", 100, 450);
+					g.setColor(Color.WHITE);
+					if(this.startMenu.getLevel() == 2) g.setColor(Color.YELLOW);
+					g.drawString("Press D for Desert level", 550, 450);
+					g.setColor(Color.WHITE);
+					if(this.startMenu.getLevel() == 3) g.setColor(Color.YELLOW);
+					g.drawString("Press W for Winter Level", 900, 450);
+					g.setColor(Color.WHITE);
+					g.drawString("Press Enter to start the Game", 450, 600);
+				//g.drawString(t2,1000,80);
+			}
 		}
 		Graphics2D g2 = (Graphics2D)g;
 		
@@ -458,6 +471,11 @@ public class Prototype extends Game {
 				g2.setColor(Color.RED);
 				g2.draw(EXP.getChild(i).getGlobalHitbox());
 			}
+		}
+		if(end) {
+			Winner = String.format("%s WINS!!", Winner);
+			g.drawString(Winner, 400, 400);
+			this.dispatchEvent(new GameEvent(GameEvent.GAME_OVER,this));
 		}
 	}
 	}
@@ -524,13 +542,15 @@ public class Prototype extends Game {
 			}
 		}
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_FIRED) {
+			SM.playSoundEffect("fire");
 			System.out.println("fire"); 
 			Projectile f1 = Projectile.loadProjectile("id",WeaponSelect.get(weapon));
 			Tank t1 = (Tank)PlayerSelect.get(player);
 
 			DisplayObject barrel = t1.getChild(0);
 			Point Barrelpoint = barrel.localToGlobal(barrel.getPosition());
-			f1.setPosition(new Point(Barrelpoint.x,(int)(Barrelpoint.y-(barrel.getUnscaledHeight()*barrel.getScaleY()))));
+			Barrelpoint = new Point(Barrelpoint.x-7,Barrelpoint.y+40);
+			f1.setPosition(Barrelpoint);
 			
 			double rad = Math.toRadians(t1.angle);
 			int xv = (int)(velocity*Math.cos(rad));
@@ -543,6 +563,7 @@ public class Prototype extends Game {
 			this.dispatchEvent(new PlayerEvent(this,PlayerEvent.FIRE));
 		}
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_EXPLODE) {
+			SM.playSoundEffect("explode");
 			ProjectileEvent e = (ProjectileEvent)event;
 			System.out.println("explode"); 
 			Projectile p = (Projectile)Proj.getChild(e.getId());
@@ -587,14 +608,16 @@ public class Prototype extends Game {
 			pause_movement = true;
 		}
 		if(event.getEventType() == PlayerEvent.TURN_END) {
-			player=(player+1)%2;
+			player=(player+1)%Tanks.getChildren().size();
 			pause_movement = false;
 		}
 		if(event.getEventType() == GameEvent.GAME_OVER) {
-			if(tank1.getHealth() < 0) {
-				
-			}
 			this.pause();
+		}
+		if(event.getEventType()==TankEvent.EXPLODE) {
+			TankEvent e = (TankEvent)event;
+			Tanks.removeChild(e.getTank());
+			PlayerSelect.remove(e.getTank());
 		}
 	}
 	

@@ -398,11 +398,11 @@ public class WeaponEditor extends Game {
 			}
 		}
 		DisplayObject barrel = tank1.getChild(0);
-		Point bp = barrel.getPosition();
+		Point bp = barrel.getPivotPoint();
 		bp = new Point((int)bp.getX(),(int)bp.getY());
 		Point Barrelpoint = barrel.localToGlobal(bp);
 		g2.setColor(Color.RED);
-		g2.draw(new Ellipse2D.Double(Barrelpoint.x-7,Barrelpoint.y+40,10.0,10.0));
+		g2.draw(new Ellipse2D.Double(Barrelpoint.x,Barrelpoint.y,10.0,10.0));
 		for(int x = 0; x<Proj.getChildren().size();x++) {
 			g2.draw(Proj.getChild(x).getGlobalHitbox());
 		}
@@ -479,7 +479,11 @@ public class WeaponEditor extends Game {
 			Tank t1 = (Tank)PlayerSelect.get(player);
 
 			DisplayObject barrel = t1.getChild(0);
-			Point Barrelpoint = barrel.localToGlobal(barrel.getPosition());
+			
+			for(int y = 0;y<t1.getChildren().size();y++) {
+				System.out.println(t1.getChild(y).getId());
+			}
+			Point Barrelpoint = barrel.localToGlobal(barrel.getPivotPoint());
 			Barrelpoint = new Point(Barrelpoint.x-7,Barrelpoint.y+40);
 			f1.setPosition(Barrelpoint);
 			 
