@@ -382,6 +382,7 @@ public class Prototype extends Game {
 				g.setColor(Color.WHITE);
 				if(this.startMenu.getNumPlayers() == 4) g.setColor(Color.YELLOW);
 				g.drawString("Press 4 for four Players", 900, 300);
+				g.setColor(Color.WHITE);
 				
 
 				if(this.startMenu.getLevel() == 1) g.setColor(Color.YELLOW);
@@ -408,7 +409,7 @@ public class Prototype extends Game {
 				g2.setColor(Color.RED);
 				g2.draw(EXP.getChild(i).getGlobalHitbox());
 				
-				g.setColor(Color.WHITE);
+				/*g.setColor(Color.WHITE);
 				
 				if(this.startMenu.getLevel() == 1) g.setColor(Color.YELLOW);
 				g.drawString("Press f for the Field level", 100, 450);
@@ -422,7 +423,7 @@ public class Prototype extends Game {
 
 				g.setColor(Color.WHITE);
 				
-				g.drawString("Press Enter to start the game", 525, 600);
+				g.drawString("Press Enter to start the game", 525, 600);*/
 			}
 		}
 	}
