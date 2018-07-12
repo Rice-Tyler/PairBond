@@ -268,7 +268,7 @@ public class Prototype extends Game {
 				for(int y = 0; y<PlayerSelect.size();y++) {
 					Tank t = (Tank) PlayerSelect.get(y);
 					if(e.collidesWith(t)) {
-						System.out.println("hit");
+						//System.out.println("hit");
 	//					System.out.println(e.getDamage());
 						t.decreaseHealth(e.getDamage());
 						if(t.getHealth()<0) {
@@ -283,7 +283,7 @@ public class Prototype extends Game {
 					EXP.removeChild(e);
 					x--;
 				}
-				System.out.println(x);
+				//System.out.println(x);
 			}
 			TJ.nextFrame();
 	//		System.out.println(c1.getParent().getId());
@@ -543,7 +543,7 @@ public class Prototype extends Game {
 		}
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_FIRED) {
 			SM.playSoundEffect("fire");
-			System.out.println("fire"); 
+			//System.out.println("fire"); 
 			Projectile f1 = Projectile.loadProjectile("id",WeaponSelect.get(weapon));
 			Tank t1 = (Tank)PlayerSelect.get(player);
 
@@ -565,7 +565,7 @@ public class Prototype extends Game {
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_EXPLODE) {
 			SM.playSoundEffect("explode");
 			ProjectileEvent e = (ProjectileEvent)event;
-			System.out.println("explode"); 
+			//System.out.println("explode"); 
 			Projectile p = (Projectile)Proj.getChild(e.getId());
 			if(p!=null) {
 				ArrayList<Projectile> psub = p.getSubmunition();
@@ -595,7 +595,7 @@ public class Prototype extends Game {
 	//			Point pexp = localToGlobal(exp.getPosition,exp)
 				if(exp.getPosition().x==0 && exp.getPosition().y==0)exp.setPosition(p.localToGlobal(p.getPosition()));
 				else exp.setPosition(exp.localToGlobal(exp.getPosition()));
-				System.out.println(exp.getPosition());
+				//System.out.println(exp.getPosition());
 //				exp.setRotation(p.getRotation());
 				EXP.addChild(exp);
 				Proj.removeChildById(e.getId());
