@@ -60,7 +60,7 @@ public class WeaponEditor extends Game {
 	public boolean onGround = false;
 	int f_count = 181;
 	double velocity = 25.0;
-	double angle = 90.0;
+	double angle = 0.0;
 	int player = 0;
 	int weapon = 0;
 	int Blast = 0;
@@ -88,12 +88,12 @@ public class WeaponEditor extends Game {
 		this.setDisplay();
 		this.Scale();
 		this.Position();
-		this.findCenter();
 		this.addEventListener(this, ProjectileEvent.PROJECTILE_FIRED);
 		this.addEventListener(this, ProjectileEvent.PROJECTILE_EXPLODE);
 		this.addEventListener(this, PlayerEvent.FIRE);
 		this.addEventListener(this, PlayerEvent.TURN_END);
 		tank1.addEventListener(this, CollisionEvent.COLLISION);
+		
 		WeaponSelect.add("none");
 		BlastSelect.add("Round");
 		BlastSelect.add("Rect");
@@ -166,13 +166,13 @@ public class WeaponEditor extends Game {
 				currPlayer.move = true;
 				currPlayer.push_force(2,0);
 			}
-			if(pressedKeys.contains(KeyEvent.VK_Q) && currPlayer.angle < 180) {
-				currPlayer.angle+=.5;
-				currPlayer.setGunRotation(currPlayer.getGunRotation()-Math.toRadians(.5));
+			if(pressedKeys.contains(KeyEvent.VK_Q) && currPlayer.angle < 270) {
+				currPlayer.angle+=2;
+				currPlayer.setGunRotation(currPlayer.getGunRotation()-Math.toRadians(2));
 			}
-			if(pressedKeys.contains(KeyEvent.VK_W) && currPlayer.angle > 0  ) {
-				currPlayer.angle-=.5;
-				currPlayer.setGunRotation(currPlayer.getGunRotation()+Math.toRadians(.5));
+			if(pressedKeys.contains(KeyEvent.VK_W) && currPlayer.angle > 90) {
+				currPlayer.angle-=2;
+				currPlayer.setGunRotation(currPlayer.getGunRotation()+Math.toRadians(2));
 			}
 			if(pressedKeys.contains(KeyEvent.VK_A) && velocity < 50)velocity+=.5;
 			if(pressedKeys.contains(KeyEvent.VK_S) && velocity > 0  )velocity-=.5;
@@ -359,7 +359,7 @@ public class WeaponEditor extends Game {
 			Explosion e = (Explosion)EXP.getChild(x);
 			for(int y = 0; y<PlayerSelect.size();y++) {
 				Tank t = (Tank) PlayerSelect.get(y);
-				if(e.collidesWith(t)) {
+				if(e.collidesWith(t) || e.collidesWith(t.getGun())) {
 					System.out.println("hit");
 //					System.out.println(e.getDamage());
 					t.decreaseHealth(e.getDamage());
@@ -399,9 +399,9 @@ public class WeaponEditor extends Game {
 		}
 		DisplayObject barrel = tank1.getChild(0);
 		Point bp = barrel.getPivotPoint();
-		bp = new Point((int)bp.getX(),(int)bp.getY());
+		bp = new Point((int)bp.getX()+10,(int)bp.getY()+60);
 		Point Barrelpoint = barrel.localToGlobal(bp);
-		g2.setColor(Color.RED);
+		g2.setColor(Color.GREEN);
 		g2.draw(new Ellipse2D.Double(Barrelpoint.x,Barrelpoint.y,10.0,10.0));
 		for(int x = 0; x<Proj.getChildren().size();x++) {
 			g2.draw(Proj.getChild(x).getGlobalHitbox());
@@ -435,22 +435,6 @@ public class WeaponEditor extends Game {
 			if(e.getSource() instanceof DisplayObject) {
 				DisplayObject d1 = (DisplayObject)e.getSource();
 				DisplayObject d2 = e.getD1();
-				if(d2 instanceof Coin) {
-					Coin currCoin = (Coin)d2;
-					if(!currCoin.isPickedUp()) {
-						currCoin.setPickedUp(true);
-//						System.out.println("pickup");
-						Tween swoop = new Tween("swoop",currCoin);
-						Point c = currCoin.getPosition();
-						swoop.animate(TweenableParams.Tweenables.PositionX,(double)c.x,0.0,500.0);
-						swoop.animate(TweenableParams.Tweenables.PositionY,(double)c.y,0.0,500.0);
-						swoop.animate(Tweenables.Scale, currCoin.getScaleX(), currCoin.getScaleX()*2, 500.0);
-						TJ.add(swoop);
-//						currCoin.setVisible(false);
-					}
-				}
-				else
-				
 				jump = this.collide(d1, d2);
 			}
 		}
@@ -483,11 +467,13 @@ public class WeaponEditor extends Game {
 			for(int y = 0;y<t1.getChildren().size();y++) {
 				System.out.println(t1.getChild(y).getId());
 			}
-			Point Barrelpoint = barrel.localToGlobal(barrel.getPivotPoint());
-			Barrelpoint = new Point(Barrelpoint.x-7,Barrelpoint.y+40);
+			Point bp = barrel.getPivotPoint();
+			bp = new Point(bp.x+10,bp.y+60);
+			Point Barrelpoint = barrel.localToGlobal(bp);
+			Barrelpoint = new Point(Barrelpoint.x,Barrelpoint.y);
 			f1.setPosition(Barrelpoint);
 			 
-			double rad = Math.toRadians(t1.angle);
+			double rad = Math.toRadians(t1.angle-90);
 			int xv = (int)(velocity*Math.cos(rad));
 			int yv = -(int)(velocity*Math.sin(rad));
 //			System.out.println(xv);
@@ -528,9 +514,10 @@ public class WeaponEditor extends Game {
 					p.removeChild(temp);
 				}
 				Explosion exp = p.getExp();
-	//			Point pexp = localToGlobal(exp.getPosition,exp)
-//				if(exp.getPosition().x==0 && exp.getPosition().y==0)exp.setPosition(localToGlobal(p.getPosition(),p));
-				exp.setPosition(p.localToGlobal(p.getPosition()));
+				Point g = p.getPosition();
+				g = new Point(g.x,g.y-(p.getUnscaledHeight()/2));
+				exp.setPosition(p.localToGlobal(g));
+				exp.setRotation(p.getRotation()+90);
 				System.out.println(exp.getPosition());
 				EXP.addChild(exp);
 				Proj.removeChildById(e.getId());

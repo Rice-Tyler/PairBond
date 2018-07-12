@@ -132,7 +132,6 @@ public class Prototype extends Game {
 				}
 			}
 			Tank currPlayer = (Tank)PlayerSelect.get(player);
-			if(p.y>=(int)Math.floor(930-((tank1.getUnscaledHeight()*tank1.getScaleY()))))onGround = true;
 			if(!pause_movement) {
 				if(pressedKeys.contains(KeyEvent.VK_LEFT)) {
 					
@@ -151,7 +150,7 @@ public class Prototype extends Game {
 					currPlayer.angle-=.8;
 					currPlayer.setGunRotation(currPlayer.getGunRotation()+Math.toRadians(.8));
 				}
-				if(pressedKeys.contains(KeyEvent.VK_A) && velocity < 50)velocity+=.5;
+				if(pressedKeys.contains(KeyEvent.VK_A) && currPlayer.getPower() < 50)velocity+=.5;
 				if(pressedKeys.contains(KeyEvent.VK_S) && velocity > 0  )velocity-=.5;
 				if(pressedKeys.contains(KeyEvent.VK_ENTER) && Switch) {
 					weapon = (weapon+1)%WeaponSelect.size();
@@ -249,11 +248,6 @@ public class Prototype extends Game {
 				t.onGround = false;
 				t.move = false;
 				if(!t.move)t.xfriction();
-				if(t.onGround) {
-					t.setPosition(new Point(p.x,(int)Math.floor((930-(t.getUnscaledHeight()*t.getScaleY())))));
-					t.setNormalUp(true);
-					jump = true;
-				}
 				t.move();
 				for(int x = 0;x<lv.getChildren().size();x++) {
 					DisplayObject c = lv.getChild(x);
