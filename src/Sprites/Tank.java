@@ -12,9 +12,9 @@ public class Tank extends Sprite {
 	public boolean onGround = true; 
 	public boolean move = false;
 	public double angle = 180.0;
-	private int power = 50;
-	private double fuel = 100;
-	public static final double maxFuel = 100;
+	private Double power = 50.0;
+	private double fuel = 50;
+	public static final double maxFuel = 50;
 	public double getFuel() {
 		return fuel;
 	}
@@ -26,7 +26,7 @@ public class Tank extends Sprite {
 	private Tankgun gun = null;
 	private DisplayObject healthbar = null;
 	private DisplayObject healthMeter = null;
-	public int getPower() {
+	public Double getPower() {
 		return power;
 	}
 
@@ -38,7 +38,7 @@ public class Tank extends Sprite {
 		this.healthbar = healthBar1;
 	}
 
-	public void setPower(int power) {
+	public void setPower(Double power) {
 		this.power = power;
 	}
 

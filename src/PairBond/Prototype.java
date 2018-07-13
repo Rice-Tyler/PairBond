@@ -8,6 +8,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -51,6 +52,10 @@ public class Prototype extends Game {
 	Tank tank2 = new Tank("Tank2","Tank2.png", 2);
 	Tank tank3 = new Tank("Tank3","Tank3.png", 3);
 	Tank tank4 = new Tank("Tank4","Tank4.png", 4);
+	DisplayObject powerbar = new DisplayObject("Powerbar", "Powerbar.png");
+	DisplayObject power = new DisplayObject("Power", "Power.png");
+	DisplayObject fuelbar = new DisplayObject("Fuelbar", "Fuelbar.png");
+	DisplayObject fuel = new DisplayObject("Fuel", "Fuel.png");
 	Menu startMenu = new Menu("menu");
 	//Level1 lv = new Level1("lv1", "Background_field.png", 2);
 	//Level2 lv = new Level2("lv2", "Background_desert.png", 2);
@@ -79,6 +84,7 @@ public class Prototype extends Game {
 	int Switch_count = 19;
 	boolean end = false;
 	String Winner ="";
+	boolean turnEnd = false;
 	
 	ArrayList<DisplayObject> PlayerSelect = Tanks.getChildren();
 	public Prototype() {
@@ -132,16 +138,42 @@ public class Prototype extends Game {
 					((AnimatedSprite)P).animate();
 				}
 			}
+			if(turnEnd) {
+				BufferedImage newFuel = readImage("Fuel.png").getSubimage(0, 0, this.getChild("Fuel").getUnscaledWidth(), this.getChild("Fuel").getUnscaledHeight());
+				this.getChild("Fuel").setImage(newFuel);
+				this.turnEnd = false;
+			}
 			Tank currPlayer = (Tank)PlayerSelect.get(player);
+			double ratio = currPlayer.getPower()/50.0;
+			double xDim = this.getChild("Power").getUnscaledWidth() * ratio;
+			if(xDim > 0) {
+				BufferedImage newPower = readImage("Power.png").getSubimage(0, 0, (int) xDim, this.getChild("Power").getUnscaledHeight());
+				this.getChild("Power").setImage(newPower);
+			}
 			if(!pause_movement) {
-				if(pressedKeys.contains(KeyEvent.VK_LEFT)) {
-					
+				if(pressedKeys.contains(KeyEvent.VK_LEFT) && currPlayer.getFuel() > 0) {
 					currPlayer.move = true;
 					currPlayer.push_force(-2,0);
+					currPlayer.setFuel(currPlayer.getFuel() - 0.5);
+					
+					double fuelRatio = currPlayer.getFuel()/currPlayer.maxFuel;
+					double xDimFuel = this.getChild("Fuel").getUnscaledWidth() * fuelRatio;
+					if((int) xDimFuel > 0) {
+						BufferedImage newFuel = readImage("Fuel.png").getSubimage(0, 0, (int) xDimFuel, this.getChild("Fuel").getUnscaledHeight());
+						this.getChild("Fuel").setImage(newFuel);
+					}
 				}
-				if(pressedKeys.contains(KeyEvent.VK_RIGHT)) {
+				if(pressedKeys.contains(KeyEvent.VK_RIGHT) && currPlayer.getFuel() > 0) {
 					currPlayer.move = true;
 					currPlayer.push_force(2,0);
+					currPlayer.setFuel(currPlayer.getFuel() - 0.5);
+					
+					double fuelRatio = currPlayer.getFuel()/currPlayer.maxFuel;
+					double xDimFuel = this.getChild("Fuel").getUnscaledWidth() * fuelRatio;
+					if((int) xDimFuel > 0) {
+						BufferedImage newFuel = readImage("Fuel.png").getSubimage(0, 0, (int) xDimFuel, this.getChild("Fuel").getUnscaledHeight());
+						this.getChild("Fuel").setImage(newFuel);
+					}
 				}
 				if(pressedKeys.contains(KeyEvent.VK_Q) && currPlayer.angle < 270) {
 					currPlayer.angle+=.8;
@@ -151,8 +183,26 @@ public class Prototype extends Game {
 					currPlayer.angle-=.8;
 					currPlayer.setGunRotation(currPlayer.getGunRotation()+Math.toRadians(.8));
 				}
-				if(pressedKeys.contains(KeyEvent.VK_A) && currPlayer.getPower() < 50)velocity+=.5;
-				if(pressedKeys.contains(KeyEvent.VK_S) && velocity > 0  )velocity-=.5;
+				if(pressedKeys.contains(KeyEvent.VK_A) && currPlayer.getPower() < 50) {
+					//velocity+=.5;
+					currPlayer.setPower(currPlayer.getPower()+0.5);
+					ratio = currPlayer.getPower()/50.0;
+					xDim = this.getChild("Power").getUnscaledWidth() * ratio;
+					if((int) xDim > 0) {
+						BufferedImage newPower = readImage("Power.png").getSubimage(0, 0, (int) xDim, this.getChild("Power").getUnscaledHeight());
+						this.getChild("Power").setImage(newPower);
+					}
+				}
+				if(pressedKeys.contains(KeyEvent.VK_S) && currPlayer.getPower() > 0  ) {
+//					velocity-=.5;
+					currPlayer.setPower(currPlayer.getPower()-0.5);
+					ratio = currPlayer.getPower()/50.0;
+					xDim = this.getChild("Power").getUnscaledWidth() * ratio;
+					if((int) xDim > 0) {
+						BufferedImage newPower = readImage("Power.png").getSubimage(0, 0, (int) xDim, this.getChild("Power").getUnscaledHeight());
+						this.getChild("Power").setImage(newPower);
+					}
+				}
 				if(pressedKeys.contains(KeyEvent.VK_ENTER) && Switch) {
 					weapon = (weapon+1)%WeaponSelect.size();
 					Switch = false;
@@ -172,7 +222,7 @@ public class Prototype extends Game {
 	//			tank1.push_force(0,-50);
 	//				this.dispatchEvent(new SoundEvent(SoundEvent.TRIGGER_SOUND_EFFECT,this,"jump"));
 			}	
-			if(f_count < 100)f_count++;
+			if(f_count < 80)f_count++;
 			else fire = true;
 			for(int r = 0; r<this.Tanks.getChildren().size(); r++) {
 				for(int q = 0; q<lv.getNumPlatforms(); q++) {
@@ -321,6 +371,18 @@ public class Prototype extends Game {
 					this.addChild(lv.getDestructable(i));
 				}
 				this.addChild(Tanks);
+				this.addChild(power);
+				this.addChild(powerbar);
+				this.addChild(fuel);
+				this.addChild(fuelbar);
+				powerbar.setPosition(10, 650);
+				powerbar.setScale(0.5);
+				power.setPosition(10, 650);
+				power.setScale(0.5);
+				fuelbar.setPosition(950, 650);
+				fuelbar.setScale(0.5);
+				fuel.setPosition(950, 650);
+				fuel.setScale(0.5);
 				String bleh = "tank";
 				for(int y = 0; y < this.startMenu.getNumPlayers(); y++) {
 					Tank temp;
@@ -349,6 +411,11 @@ public class Prototype extends Game {
 					if(lv.getId()=="lv3") {
 						for(int i = 0; i<Tanks.getChildren().size();i++) {
 							Tanks.getChild(i).setFriction(.01);
+						}
+					}
+					else if(lv.getId() == "lv2") {
+						for(int i = 0; i<Tanks.getChildren().size();i++) {
+							Tanks.getChild(i).setFriction(.95);
 						}
 					}
 				}
@@ -553,8 +620,8 @@ public class Prototype extends Game {
 			f1.setPosition(Barrelpoint);
 			
 			double rad = Math.toRadians(t1.angle-90);
-			int xv = (int)(velocity*Math.cos(rad));
-			int yv = -(int)(velocity*Math.sin(rad));
+			int xv = (int)(t1.getPower()*Math.cos(rad));
+			int yv = -(int)(t1.getPower()*Math.sin(rad));
 			f1.push_force(xv,yv);
 			if(lv.getId()=="lv3") {
 				int slide = -(int)(10*Math.cos(rad));
@@ -609,8 +676,11 @@ public class Prototype extends Game {
 			pause_movement = true;
 		}
 		if(event.getEventType() == PlayerEvent.TURN_END) {
+			Tank temp = (Tank) Tanks.getChild(player);
+			temp.setFuel(temp.maxFuel);
 			player=(player+1)%Tanks.getChildren().size();
 			pause_movement = false;
+			this.turnEnd = true;
 //			fire = true;
 		}
 		if(event.getEventType() == GameEvent.GAME_OVER) {
