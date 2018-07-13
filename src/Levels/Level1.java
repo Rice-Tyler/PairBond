@@ -6,7 +6,7 @@ public class Level1 extends Level {
 	public Level1(String id, String background, int players) {
 		super(id, background, players);
 		this.getBackground().setScale(0.8);
-		this.addPlatform(0, 550, 1.0, "ground", "Ground1.png");
+		this.addPlatform(0, 550, 1.0, "ground", "ground2.png");
 		this.getPlatform(0).setScaleX(1.44);
 		
 		int x = 100;
