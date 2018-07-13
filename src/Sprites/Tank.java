@@ -13,6 +13,16 @@ public class Tank extends Sprite {
 	public boolean move = false;
 	public double angle = 180.0;
 	private int power = 50;
+	private double fuel = 100;
+	public static final double maxFuel = 100;
+	public double getFuel() {
+		return fuel;
+	}
+
+	public void setFuel(double fuel) {
+		this.fuel = fuel;
+	}
+
 	private Tankgun gun = null;
 	private DisplayObject healthbar = null;
 	private DisplayObject healthMeter = null;
