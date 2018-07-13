@@ -8,7 +8,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -42,6 +41,7 @@ import edu.virginia.engine.events.GameEvent;
 import edu.virginia.engine.events.PlayerEvent;
 import edu.virginia.engine.events.ProjectileEvent;
 import edu.virginia.engine.events.TankEvent;
+import edu.virginia.engine.events.TweenEvent;
 //import edu.virginia.engine.events.SoundEvent;
 //import edu.virginia.engine.events.TweenEvent;
 import edu.virginia.engine.sound.SoundManager;
@@ -51,10 +51,6 @@ public class Prototype extends Game {
 	Tank tank2 = new Tank("Tank2","Tank2.png", 2);
 	Tank tank3 = new Tank("Tank3","Tank3.png", 3);
 	Tank tank4 = new Tank("Tank4","Tank4.png", 4);
-	DisplayObject powerbar = new DisplayObject("Powerbar", "Powerbar.png");
-	DisplayObject power = new DisplayObject("Power", "Power.png");
-	DisplayObject fuelbar = new DisplayObject("Fuelbar", "Fuelbar.png");
-	DisplayObject fuel = new DisplayObject("Fuel", "Fuel.png");
 	Menu startMenu = new Menu("menu");
 	//Level1 lv = new Level1("lv1", "Background_field.png", 2);
 	//Level2 lv = new Level2("lv2", "Background_desert.png", 2);
@@ -83,7 +79,9 @@ public class Prototype extends Game {
 	int Switch_count = 19;
 	boolean end = false;
 	String Winner ="";
-	boolean turnEnd = false;
+	String Ending_Instructions = "Please Exit and Restart the";
+	String Ending_Instructions2 = "Game to Play Again!!!";
+	//String indented_instructions = Ending_Instructions.replaceAll("(?m)^", "\t");
 	
 	ArrayList<DisplayObject> PlayerSelect = Tanks.getChildren();
 	public Prototype() {
@@ -99,6 +97,7 @@ public class Prototype extends Game {
 		this.addEventListener(this, PlayerEvent.TURN_END);
 		this.addEventListener(this, GameEvent.GAME_OVER);
 		this.addEventListener(this, TankEvent.EXPLODE);
+		TJ.addEventListener(this, TweenEvent.TWEEN_COMPLETE);
 		SM.loadSoundEffect("fire", "resources/firing2.wav");
 		SM.loadSoundEffect("explode", "resources/blast0.wav");
 		for(int x = 0; x<Tanks.getChildren().size();x++) {
@@ -114,11 +113,19 @@ public class Prototype extends Game {
 		    }
 		}
 //		tank1.setyMax(100);
-		
+		SM.loadMusic("firstscreen", "resources/LoadingScreenBackgroundSound.wav");
+		SM.loadMusic("fieldmusic", "resources/tankWarBackgroundSound.wav");
+		SM.loadMusic("desertmusic", "resources/TankDesertTheme.wav");
+		SM.loadMusic("wintermusic", "resources/TankWinterTheme.wav");
+		SM.loadSoundEffect("MenuSelect", "resources/MenuSelectSound.wav");
+		SM.loadSoundEffect("GO", "resources/TankGO.wav");
+		SM.loadSoundEffect("Victory", "resources/TankWarVictory.wav");
+		SM.loadSoundEffect("move", "resources/TankMovement1.wav");
+		SM.loadSoundEffect("Aim", "resources/TankAim.wav");
+		SM.loadSoundEffect("platdestroyed", "resources/PlatformDestroyed2.wav");
 //		 SM.loadSoundEffect("jump", "resources/jump.wav");
 //		SM.loadMusic("music","resources/mario_music.wav");
 //		this.dispatchEvent(new SoundEvent(SoundEvent.TRIGGER_MUSIC,this,"music"));
-//		System.out.println(this.getDispatchList().keySet());
 	}
 	
 	@Override
@@ -137,75 +144,30 @@ public class Prototype extends Game {
 					((AnimatedSprite)P).animate();
 				}
 			}
-			
-			if(turnEnd) {
-				BufferedImage newFuel = readImage("Fuel.png").getSubimage(0, 0, this.getChild("Fuel").getUnscaledWidth(), this.getChild("Fuel").getUnscaledHeight());
-				this.getChild("Fuel").setImage(newFuel);
-				this.turnEnd = false;
-			}
 			Tank currPlayer = (Tank)PlayerSelect.get(player);
-			if(p.y>=(int)Math.floor(930-((tank1.getUnscaledHeight()*tank1.getScaleY()))))onGround = true;
-			
-			double ratio = currPlayer.getPower()/50.0;
-			double xDim = this.getChild("Power").getUnscaledWidth() * ratio;
-			if(xDim > 0) {
-				BufferedImage newPower = readImage("Power.png").getSubimage(0, 0, (int) xDim, this.getChild("Power").getUnscaledHeight());
-				this.getChild("Power").setImage(newPower);
-			}
-
 			if(!pause_movement) {
-				if(pressedKeys.contains(KeyEvent.VK_LEFT) && currPlayer.getFuel() > 0) {
+				if(pressedKeys.contains(KeyEvent.VK_LEFT)) {
+					SM.playSoundEffect("move");
 					currPlayer.move = true;
 					currPlayer.push_force(-2,0);
-					currPlayer.setFuel(currPlayer.getFuel() - 0.5);
-					
-					double fuelRatio = currPlayer.getFuel()/currPlayer.maxFuel;
-					double xDimFuel = this.getChild("Fuel").getUnscaledWidth() * fuelRatio;
-					if((int) xDimFuel > 0) {
-						BufferedImage newFuel = readImage("Fuel.png").getSubimage(0, 0, (int) xDimFuel, this.getChild("Fuel").getUnscaledHeight());
-						this.getChild("Fuel").setImage(newFuel);
-					}
 				}
-				if(pressedKeys.contains(KeyEvent.VK_RIGHT) && currPlayer.getFuel() > 0) {
+				if(pressedKeys.contains(KeyEvent.VK_RIGHT)) {
+					SM.playSoundEffect("move");
 					currPlayer.move = true;
 					currPlayer.push_force(2,0);
-					currPlayer.setFuel(currPlayer.getFuel() - 0.5);
-					
-					double fuelRatio = currPlayer.getFuel()/currPlayer.maxFuel;
-					double xDimFuel = this.getChild("Fuel").getUnscaledWidth() * fuelRatio;
-					if((int) xDimFuel > 0) {
-						BufferedImage newFuel = readImage("Fuel.png").getSubimage(0, 0, (int) xDimFuel, this.getChild("Fuel").getUnscaledHeight());
-						this.getChild("Fuel").setImage(newFuel);
-					}
 				}
-				if(pressedKeys.contains(KeyEvent.VK_Q) && currPlayer.angle < 180) {
+				if(pressedKeys.contains(KeyEvent.VK_Q) && currPlayer.angle < 270) {
+					SM.playSoundEffect("Aim");
 					currPlayer.angle+=.8;
 					currPlayer.setGunRotation(currPlayer.getGunRotation()-Math.toRadians(.8));
 				}
-				if(pressedKeys.contains(KeyEvent.VK_W) && currPlayer.angle > 0  ) {
+				if(pressedKeys.contains(KeyEvent.VK_W) && currPlayer.angle > 90) {
+					SM.playSoundEffect("Aim");
 					currPlayer.angle-=.8;
 					currPlayer.setGunRotation(currPlayer.getGunRotation()+Math.toRadians(.8));
 				}
-				if(pressedKeys.contains(KeyEvent.VK_A) && currPlayer.getPower() < 50) {
-					//velocity+=.5;
-					currPlayer.setPower(currPlayer.getPower()+0.5);
-					ratio = currPlayer.getPower()/50.0;
-					xDim = this.getChild("Power").getUnscaledWidth() * ratio;
-					if((int) xDim > 0) {
-						BufferedImage newPower = readImage("Power.png").getSubimage(0, 0, (int) xDim, this.getChild("Power").getUnscaledHeight());
-						this.getChild("Power").setImage(newPower);
-					}
-				}
-				if(pressedKeys.contains(KeyEvent.VK_S) && currPlayer.getPower() > 0  ) {
-					velocity-=.5;
-					currPlayer.setPower(currPlayer.getPower()-0.5);
-					ratio = currPlayer.getPower()/50.0;
-					xDim = this.getChild("Power").getUnscaledWidth() * ratio;
-					if((int) xDim > 0) {
-						BufferedImage newPower = readImage("Power.png").getSubimage(0, 0, (int) xDim, this.getChild("Power").getUnscaledHeight());
-						this.getChild("Power").setImage(newPower);
-					}
-				}
+				if(pressedKeys.contains(KeyEvent.VK_A) && currPlayer.getPower() < 50)velocity+=.5;
+				if(pressedKeys.contains(KeyEvent.VK_S) && velocity > 0  )velocity-=.5;
 				if(pressedKeys.contains(KeyEvent.VK_ENTER) && Switch) {
 					weapon = (weapon+1)%WeaponSelect.size();
 					Switch = false;
@@ -216,23 +178,14 @@ public class Prototype extends Game {
 				Switch = true;
 			}
 			else Switch_count++;
-	
 			
 			if(pressedKeys.contains(KeyEvent.VK_SPACE) && fire) {
 				fire = false;
 				f_count = 0;
-	//			System.out.println("f");
 				this.dispatchEvent(new ProjectileEvent(ProjectileEvent.PROJECTILE_FIRED,this,"Fire", "s"));
 	//			tank1.push_force(0,-50);
 	//				this.dispatchEvent(new SoundEvent(SoundEvent.TRIGGER_SOUND_EFFECT,this,"jump"));
 			}	
-			if(f_count<=50) {
-				f_count++;
-			}
-			else{
-				fire = true;
-	//			System.out.println("f");
-			}
 			for(int r = 0; r<this.Tanks.getChildren().size(); r++) {
 				for(int q = 0; q<lv.getNumPlatforms(); q++) {
 					//Tanks.getChild(r).setNormalUp(false);
@@ -246,13 +199,19 @@ public class Prototype extends Game {
 							Tanks.getChild(r).setNormalUp(true);
 							//check = true;
 							Tanks.getChild(r).setPosition(Tanks.getChild(r).getPosition().x, lv.getPlatform(q).getPosition().y);
-							//System.out.println("Collision");
-							//System.out.println("NormalUp: " + check);
+							
 						}
 					}
 					if(noCollisions) {
 						Tanks.getChild(r).setNormalUp(false);
 					}
+				}
+				if(Tanks.getChild(r).getPosition().y>1100) {
+					Tank t = (Tank)(Tanks.getChild(r));
+					t.setHealth(-1);
+					this.dispatchEvent(new TankEvent(TankEvent.EXPLODE,this,t));
+					this.dispatchEvent(new PlayerEvent(this,PlayerEvent.TURN_END));
+					
 				}
 			}
 			for(int x = 0; x<Proj.getChildren().size();x++) {
@@ -275,6 +234,7 @@ public class Prototype extends Game {
 				}
 				for(int m = 0; m < lv.getNumPlatforms(); m++) {
 					if(P.collidesWith(lv.getPlatform(m)) && !explode) {
+						//SM.playSoundEffect("platdestroyed");
 						this.dispatchEvent(new ProjectileEvent(ProjectileEvent.PROJECTILE_EXPLODE,P,P.getId(),"s"));
 						explode = true;
 						x--;
@@ -282,6 +242,7 @@ public class Prototype extends Game {
 				}
 				for(int n = 0; n < lv.getNumDestructables(); n++) {
 					if(P.collidesWith(lv.getDestructable(n)) && !explode && lv.getDestructable(n).getVisible() == true) {
+						SM.playSoundEffect("platdestroyed");
 						this.dispatchEvent(new ProjectileEvent(ProjectileEvent.PROJECTILE_EXPLODE,P,P.getId(),"s"));
 						explode = true;
 						lv.getDestructable(n).setVisible(false);
@@ -298,15 +259,9 @@ public class Prototype extends Game {
 			for(int j =0;j<PlayerSelect.size();j++) {
 				Tank t = (Tank)PlayerSelect.get(j);
 				t.gravity();
-//				System.out.printf("%s, yA:%d yV:%d \n", t.getId(),t.getyAcc(),t.getyVelocity());
 				t.onGround = false;
 				t.move = false;
 				if(!t.move)t.xfriction();
-				if(t.onGround) {
-					t.setPosition(new Point(p.x,(int)Math.floor((930-(t.getUnscaledHeight()*t.getScaleY())))));
-					t.setNormalUp(true);
-					jump = true;
-				}
 				t.move();
 				for(int x = 0;x<lv.getChildren().size();x++) {
 					DisplayObject c = lv.getChild(x);
@@ -321,14 +276,10 @@ public class Prototype extends Game {
 				for(int y = 0; y<PlayerSelect.size();y++) {
 					Tank t = (Tank) PlayerSelect.get(y);
 					if(e.collidesWith(t)) {
-						//System.out.println("hit");
-	//					System.out.println(e.getDamage());
 						t.decreaseHealth(e.getDamage());
 						if(t.getHealth()<0) {
 							this.dispatchEvent(new TankEvent(TankEvent.EXPLODE,this,t));
-							y--;
 						}
-	//					System.out.printf("%s:%d \n",t.getId(),t.getHealth());
 					}
 				}
 				e.incCount();
@@ -336,12 +287,11 @@ public class Prototype extends Game {
 					EXP.removeChild(e);
 					x--;
 				}
-				//System.out.println(x);
 			}
 			TJ.nextFrame();
-	//		System.out.println(c1.getParent().getId());
 		}
 		else {
+			SM.playMusic("firstscreen");
 			if(!this.startMenu.getPlayerSelect()) {
 				if(pressedKeys.contains(KeyEvent.VK_SPACE)) {
 					this.startMenu.setPlayerSelect(true);
@@ -350,32 +300,43 @@ public class Prototype extends Game {
 				}
 			}
 			if(pressedKeys.contains(KeyEvent.VK_2) && this.startMenu.getPlayerSelect()) {
+				SM.playSoundEffect("MenuSelect");
 				this.startMenu.setNumPlayers(2);
 			}
 			if(pressedKeys.contains(KeyEvent.VK_3) && this.startMenu.getPlayerSelect()) {
+				SM.playSoundEffect("MenuSelect");
 				this.startMenu.setNumPlayers(3);
 			}
 			if(pressedKeys.contains(KeyEvent.VK_4) && this.startMenu.getPlayerSelect()) {
+				SM.playSoundEffect("MenuSelect");
 				this.startMenu.setNumPlayers(4);
 			}
 			if(pressedKeys.contains(KeyEvent.VK_F) && this.startMenu.getPlayerSelect()) {
+				SM.playSoundEffect("MenuSelect");
 				this.startMenu.setLevel(1);
 			}
 			if(pressedKeys.contains(KeyEvent.VK_D) && this.startMenu.getPlayerSelect()) {
+				SM.playSoundEffect("MenuSelect");
 				this.startMenu.setLevel(2);
 			}
 			if(pressedKeys.contains(KeyEvent.VK_W) && this.startMenu.getPlayerSelect()) {
+				SM.playSoundEffect("MenuSelect");
 				this.startMenu.setLevel(3);
 			}
  			if(pressedKeys.contains(KeyEvent.VK_ENTER) && this.startMenu.getPlayerSelect()) {
+				SM.playSoundEffect("GO");
+				SM.stopMusic("firstscreen");
 				switch (this.startMenu.getLevel()) {
 				case 1:
 					lv = new Level1("lv1", "Background_field.png", this.startMenu.getNumPlayers());
+					SM.playMusic("fieldmusic");
 					break;
 				case 2:
+					SM.playMusic("desertmusic");
 					lv = new Level2("lv2", "Background_desert.png", this.startMenu.getNumPlayers());
 					break;
 				default:
+					SM.playMusic("wintermusic");
 					lv = new Level3("lv3", "Background_winternight.png", this.startMenu.getNumPlayers());
 				}
 				this.addChild(lv.getBackground());
@@ -386,18 +347,6 @@ public class Prototype extends Game {
 					this.addChild(lv.getDestructable(i));
 				}
 				this.addChild(Tanks);
-				this.addChild(power);
-				this.addChild(powerbar);
-				this.addChild(fuel);
-				this.addChild(fuelbar);
-				powerbar.setPosition(10, 650);
-				powerbar.setScale(0.5);
-				power.setPosition(10, 650);
-				power.setScale(0.5);
-				fuelbar.setPosition(950, 650);
-				fuelbar.setScale(0.5);
-				fuel.setPosition(950, 650);
-				fuel.setScale(0.5);
 				String bleh = "tank";
 				for(int y = 0; y < this.startMenu.getNumPlayers(); y++) {
 					Tank temp;
@@ -432,6 +381,7 @@ public class Prototype extends Game {
 			Winner = Tanks.getChild(0).getId();
 			end = true;
 		}
+		TJ.nextFrame();
 	}
 	@Override 
 	public void draw(Graphics g) {
@@ -538,7 +488,13 @@ public class Prototype extends Game {
 			}
 		}
 		if(end) {
+			SM.playSoundEffect("Victory");
+			//SM.stopMusic("fieldmusic");
 			Winner = String.format("%s WINS!!", Winner);
+			//Ending_Instructions = String.format("Please Exit and Restart the Game to Play Again!", 0);
+			//g.drawString(indented_instructions, 0, 600);
+			g.drawString(Ending_Instructions, 100, 600);
+			g.drawString(Ending_Instructions2, 100, 700);
 			g.drawString(Winner, 400, 400);
 			this.dispatchEvent(new GameEvent(GameEvent.GAME_OVER,this));
 		}
@@ -559,7 +515,7 @@ public class Prototype extends Game {
 			Tanks.addChild(tank2);
 	//		this.addChild(Plats);
 	//		Plats.addChild(p1);
-			powerbar.setPosition(200, 200);
+			this.addChild(Proj);
 	//		Plats.addChild(p4);
 	//		this.addChild(EXP);
 		}
@@ -584,6 +540,13 @@ public class Prototype extends Game {
 	}
 	@Override
 	public void handleEvent(Event event) {
+		if(event.getEventType() == TweenEvent.TWEEN_COMPLETE) {
+			TweenEvent e = (TweenEvent)event;
+			if(e.getTween().getId() == "explode"){
+				Tanks.removeChild(e.getTween().getObject());
+				PlayerSelect.remove(e.getTween().getObject());
+			}
+		}
 		if(event.getEventType() == CollisionEvent.COLLISION) {
 			CollisionEvent e = (CollisionEvent)event;
 			if(e.getSource() instanceof DisplayObject) {
@@ -593,7 +556,6 @@ public class Prototype extends Game {
 					Coin currCoin = (Coin)d2;
 					if(!currCoin.isPickedUp()) {
 						currCoin.setPickedUp(true);
-//						System.out.println("pickup");
 						Tween swoop = new Tween("swoop",currCoin);
 						Point c = currCoin.getPosition();
 						swoop.animate(TweenableParams.Tweenables.PositionX,(double)c.x,0.0,500.0);
@@ -608,20 +570,19 @@ public class Prototype extends Game {
 		}
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_FIRED) {
 			SM.playSoundEffect("fire");
-			//System.out.println("fire"); 
 			Projectile f1 = Projectile.loadProjectile("id",WeaponSelect.get(weapon));
 			Tank t1 = (Tank)PlayerSelect.get(player);
 
 			DisplayObject barrel = t1.getChild(0);
-			Point Barrelpoint = barrel.localToGlobal(barrel.getPosition());
-			Barrelpoint = new Point(Barrelpoint.x-7,Barrelpoint.y+40);
+			Point bp = barrel.getPivotPoint();
+			bp = new Point(bp.x+10,bp.y+60);
+			Point Barrelpoint = barrel.localToGlobal(bp);
+			Barrelpoint = new Point(Barrelpoint.x,Barrelpoint.y);
 			f1.setPosition(Barrelpoint);
 			
-			double rad = Math.toRadians(t1.angle);
-			int xv = (int)(t1.getPower()*Math.cos(rad));
-			int yv = -(int)(t1.getPower()*Math.sin(rad));
-//			System.out.println(xv);
-//			System.out.println(yv);
+			double rad = Math.toRadians(t1.angle-90);
+			int xv = (int)(velocity*Math.cos(rad));
+			int yv = -(int)(velocity*Math.sin(rad));
 			f1.push_force(xv,yv);
 			this.addEventListener(f1, ProjectileEvent.PROJECTILE_EXPLODE);
 			Proj.addChild(f1);
@@ -630,7 +591,6 @@ public class Prototype extends Game {
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_EXPLODE) {
 			SM.playSoundEffect("explode");
 			ProjectileEvent e = (ProjectileEvent)event;
-			//System.out.println("explode"); 
 			Projectile p = (Projectile)Proj.getChild(e.getId());
 			if(p!=null) {
 				ArrayList<Projectile> psub = p.getSubmunition();
@@ -660,7 +620,7 @@ public class Prototype extends Game {
 	//			Point pexp = localToGlobal(exp.getPosition,exp)
 				if(exp.getPosition().x==0 && exp.getPosition().y==0)exp.setPosition(p.localToGlobal(p.getPosition()));
 				else exp.setPosition(exp.localToGlobal(exp.getPosition()));
-				//System.out.println(exp.getPosition());
+				
 //				exp.setRotation(p.getRotation());
 				EXP.addChild(exp);
 				Proj.removeChildById(e.getId());
@@ -673,19 +633,23 @@ public class Prototype extends Game {
 			pause_movement = true;
 		}
 		if(event.getEventType() == PlayerEvent.TURN_END) {
-			Tank temp = (Tank) Tanks.getChild(player);
-			temp.setFuel(temp.maxFuel);
 			player=(player+1)%Tanks.getChildren().size();
 			pause_movement = false;
-			this.turnEnd = true;
+			fire = true;
 		}
 		if(event.getEventType() == GameEvent.GAME_OVER) {
 			this.pause();
 		}
 		if(event.getEventType()==TankEvent.EXPLODE) {
 			TankEvent e = (TankEvent)event;
-			Tanks.removeChild(e.getTank());
-			PlayerSelect.remove(e.getTank());
+			Tween TankRemoval = new Tween("explode",e.getTank());
+			Tween GunRemoval = new Tween("explodeGun",e.getTank().getGun());
+			TankRemoval.animate(TweenableParams.Tweenables.Alpha, 1.0, 0.0, 1000.0);
+			GunRemoval.animate(TweenableParams.Tweenables.Alpha, 1.0, 0.0, 1000.0);
+			TJ.add(GunRemoval);
+			TJ.add(TankRemoval);
+//			Tanks.removeChild(e.getTank());
+//			PlayerSelect.remove(e.getTank());
 		}
 	}
 	
