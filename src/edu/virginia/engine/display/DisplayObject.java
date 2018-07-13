@@ -565,8 +565,8 @@ public class DisplayObject extends EventDispatcher implements IEventListener{
 		Point g1 = d1.localToGlobal(d1.getPivotPoint());
 		Point g2 = d2.localToGlobal(d2.getPivotPoint());
 		Point l1 = d1.getPosition();
-		System.out.printf("%s:: x: %d y: %d xV: %d yV: %d \n",d1.getId(),g1.x,g1.y,d1.getxVelocity(),d1.getyVelocity());
-		System.out.printf("%s:: x: %d y: %d \n",d2.getId(),g2.x,g2.y);
+//		System.out.printf("%s:: x: %d y: %d xV: %d yV: %d \n",d1.getId(),g1.x,g1.y,d1.getxVelocity(),d1.getyVelocity());
+//		System.out.printf("%s:: x: %d y: %d \n",d2.getId(),g2.x,g2.y);
 		if(d1.isSolid()&&d2.isSolid()) {
 			if((g1.y<g2.y)&(d1.getyVelocity()>d2.getyVelocity())) {
 				d1.setPosition(l1.x,l1.y-d1.getyVelocity());

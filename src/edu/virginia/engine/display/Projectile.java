@@ -137,60 +137,60 @@ public class Projectile extends Sprite implements IEventListener {
 			
 			line = br.readLine();
 			img = line;
-			System.out.println(blastType);	
+//			System.out.println(blastType);	
 //			System.out.println(blastType.equals("Round"));
 			
 			/* blast type */
 			line = br.readLine();
 			blastType = line;
 			blastType = blastType.substring(0, 5);
-			System.out.println(blastType);	
-			System.out.println(blastType.equals("Round"));
+//			System.out.println(blastType);	
+//			System.out.println(blastType.equals("Round"));
 			
 			/*blastdiameter*/
 			line = br.readLine();
 			r = Double.valueOf(line);
-			System.out.println(r);
+//			System.out.println(r);
 			
 			line = br.readLine();
 			damage = Integer.valueOf(line);
-			System.out.println(damage);
+//			System.out.println(damage);
 			
 			line = br.readLine();
 			duration = Integer.valueOf(line);
-			System.out.println(duration);
+//			System.out.println(duration);
 			
 			line = br.readLine();
 			height = Integer.valueOf(line);
-			System.out.println(height);
+//			System.out.println(height);
 			
 			line = br.readLine();
 			width = Integer.valueOf(line);
-			System.out.println(width);
+//			System.out.println(width);
 			
 			line = br.readLine();
 			fuse = Integer.valueOf(line);
-			System.out.println(fuse);
+//			System.out.println(fuse);
 			
 			line = br.readLine();
 			spread = Double.valueOf(line);
-			System.out.println(spread);
+//			System.out.println(spread);
 			
 			line = br.readLine();
 			sub = line;
-			System.out.println(sub);
+//			System.out.println(sub);
 			
 			line = br.readLine();
 			sub_num = Integer.valueOf(line);
-			System.out.println(sub_num);
+//			System.out.println(sub_num);
 			
 			line = br.readLine();
 			scalex = Double.valueOf(line);
-			System.out.println(scalex);
+//			System.out.println(scalex);
 			
 			line = br.readLine();
 			scaley = Double.valueOf(line);
-			System.out.println(scaley);
+//			System.out.println(scaley);
 			
             br.close(); 
 			
@@ -230,11 +230,12 @@ public class Projectile extends Sprite implements IEventListener {
 					"%s\n" + "%s\n" + "%f\n" +
 					"%d\n" + "%d\n" + "%d\n" +
 					"%d\n" + "%d\n" + "%f\n" +
-					"%s\n" + "%d\n",
-					p.getImg(),p.getBlastType(), p.getdiameter(),
+					"%s\n" + "%d\n" + "%f\n" +
+					"%f\n",
+					p.getImg().substring(8, p.getImg().length()),p.getBlastType(), p.getdiameter(),
 					e.getDamage(), e.getDuration(),  e.getHeight(),
 					e.getWidth(),p.getFuse(),p.getSpread(),
-					p.getSub(),p.getSubmunition().size());
+					p.getSub(),p.getSubmunition().size(),p.getScaleX(),p.getScaleY());
 			bw.write(P);
 			bw.close();
 		}catch(IOException ex) {

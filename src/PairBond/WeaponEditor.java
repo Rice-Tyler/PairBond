@@ -517,7 +517,7 @@ public class WeaponEditor extends Game {
 				Point g = p.getPosition();
 				g = new Point(g.x,g.y-(p.getUnscaledHeight()/2));
 				exp.setPosition(p.localToGlobal(g));
-				exp.setRotation(p.getRotation()+90);
+//				exp.setRotation(p.getRotation());
 				System.out.println(exp.getPosition());
 				EXP.addChild(exp);
 				Proj.removeChildById(e.getId());

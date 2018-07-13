@@ -41,6 +41,7 @@ import edu.virginia.engine.events.GameEvent;
 import edu.virginia.engine.events.PlayerEvent;
 import edu.virginia.engine.events.ProjectileEvent;
 import edu.virginia.engine.events.TankEvent;
+import edu.virginia.engine.events.TweenEvent;
 //import edu.virginia.engine.events.SoundEvent;
 //import edu.virginia.engine.events.TweenEvent;
 import edu.virginia.engine.sound.SoundManager;
@@ -93,6 +94,7 @@ public class Prototype extends Game {
 		this.addEventListener(this, PlayerEvent.TURN_END);
 		this.addEventListener(this, GameEvent.GAME_OVER);
 		this.addEventListener(this, TankEvent.EXPLODE);
+		TJ.addEventListener(this, TweenEvent.TWEEN_COMPLETE);
 		SM.loadSoundEffect("fire", "resources/firing2.wav");
 		SM.loadSoundEffect("explode", "resources/blast0.wav");
 		for(int x = 0; x<Tanks.getChildren().size();x++) {
@@ -112,7 +114,6 @@ public class Prototype extends Game {
 //		 SM.loadSoundEffect("jump", "resources/jump.wav");
 //		SM.loadMusic("music","resources/mario_music.wav");
 //		this.dispatchEvent(new SoundEvent(SoundEvent.TRIGGER_MUSIC,this,"music"));
-//		System.out.println(this.getDispatchList().keySet());
 	}
 	
 	@Override
@@ -142,11 +143,11 @@ public class Prototype extends Game {
 					currPlayer.move = true;
 					currPlayer.push_force(2,0);
 				}
-				if(pressedKeys.contains(KeyEvent.VK_Q) && currPlayer.angle < 180) {
+				if(pressedKeys.contains(KeyEvent.VK_Q) && currPlayer.angle < 270) {
 					currPlayer.angle+=.8;
 					currPlayer.setGunRotation(currPlayer.getGunRotation()-Math.toRadians(.8));
 				}
-				if(pressedKeys.contains(KeyEvent.VK_W) && currPlayer.angle > 0  ) {
+				if(pressedKeys.contains(KeyEvent.VK_W) && currPlayer.angle > 90) {
 					currPlayer.angle-=.8;
 					currPlayer.setGunRotation(currPlayer.getGunRotation()+Math.toRadians(.8));
 				}
@@ -167,18 +168,10 @@ public class Prototype extends Game {
 			if(pressedKeys.contains(KeyEvent.VK_SPACE) && fire) {
 				fire = false;
 				f_count = 0;
-	//			System.out.println("f");
 				this.dispatchEvent(new ProjectileEvent(ProjectileEvent.PROJECTILE_FIRED,this,"Fire", "s"));
 	//			tank1.push_force(0,-50);
 	//				this.dispatchEvent(new SoundEvent(SoundEvent.TRIGGER_SOUND_EFFECT,this,"jump"));
 			}	
-			if(f_count<=50) {
-				f_count++;
-			}
-			else{
-				fire = true;
-	//			System.out.println("f");
-			}
 			for(int r = 0; r<this.Tanks.getChildren().size(); r++) {
 				for(int q = 0; q<lv.getNumPlatforms(); q++) {
 					//Tanks.getChild(r).setNormalUp(false);
@@ -192,13 +185,19 @@ public class Prototype extends Game {
 							Tanks.getChild(r).setNormalUp(true);
 							//check = true;
 							Tanks.getChild(r).setPosition(Tanks.getChild(r).getPosition().x, lv.getPlatform(q).getPosition().y);
-							//System.out.println("Collision");
-							//System.out.println("NormalUp: " + check);
+							
 						}
 					}
 					if(noCollisions) {
 						Tanks.getChild(r).setNormalUp(false);
 					}
+				}
+				if(Tanks.getChild(r).getPosition().y>1100) {
+					Tank t = (Tank)(Tanks.getChild(r));
+					t.setHealth(-1);
+					this.dispatchEvent(new TankEvent(TankEvent.EXPLODE,this,t));
+					this.dispatchEvent(new PlayerEvent(this,PlayerEvent.TURN_END));
+					
 				}
 			}
 			for(int x = 0; x<Proj.getChildren().size();x++) {
@@ -244,7 +243,6 @@ public class Prototype extends Game {
 			for(int j =0;j<PlayerSelect.size();j++) {
 				Tank t = (Tank)PlayerSelect.get(j);
 				t.gravity();
-//				System.out.printf("%s, yA:%d yV:%d \n", t.getId(),t.getyAcc(),t.getyVelocity());
 				t.onGround = false;
 				t.move = false;
 				if(!t.move)t.xfriction();
@@ -262,14 +260,10 @@ public class Prototype extends Game {
 				for(int y = 0; y<PlayerSelect.size();y++) {
 					Tank t = (Tank) PlayerSelect.get(y);
 					if(e.collidesWith(t)) {
-						System.out.println("hit");
-	//					System.out.println(e.getDamage());
 						t.decreaseHealth(e.getDamage());
 						if(t.getHealth()<0) {
 							this.dispatchEvent(new TankEvent(TankEvent.EXPLODE,this,t));
-							y--;
 						}
-	//					System.out.printf("%s:%d \n",t.getId(),t.getHealth());
 					}
 				}
 				e.incCount();
@@ -277,10 +271,8 @@ public class Prototype extends Game {
 					EXP.removeChild(e);
 					x--;
 				}
-				System.out.println(x);
 			}
 			TJ.nextFrame();
-	//		System.out.println(c1.getParent().getId());
 		}
 		else {
 			if(!this.startMenu.getPlayerSelect()) {
@@ -361,6 +353,7 @@ public class Prototype extends Game {
 			Winner = Tanks.getChild(0).getId();
 			end = true;
 		}
+		TJ.nextFrame();
 	}
 	@Override 
 	public void draw(Graphics g) {
@@ -513,6 +506,13 @@ public class Prototype extends Game {
 	}
 	@Override
 	public void handleEvent(Event event) {
+		if(event.getEventType() == TweenEvent.TWEEN_COMPLETE) {
+			TweenEvent e = (TweenEvent)event;
+			if(e.getTween().getId() == "explode"){
+				Tanks.removeChild(e.getTween().getObject());
+				PlayerSelect.remove(e.getTween().getObject());
+			}
+		}
 		if(event.getEventType() == CollisionEvent.COLLISION) {
 			CollisionEvent e = (CollisionEvent)event;
 			if(e.getSource() instanceof DisplayObject) {
@@ -522,7 +522,6 @@ public class Prototype extends Game {
 					Coin currCoin = (Coin)d2;
 					if(!currCoin.isPickedUp()) {
 						currCoin.setPickedUp(true);
-//						System.out.println("pickup");
 						Tween swoop = new Tween("swoop",currCoin);
 						Point c = currCoin.getPosition();
 						swoop.animate(TweenableParams.Tweenables.PositionX,(double)c.x,0.0,500.0);
@@ -537,20 +536,19 @@ public class Prototype extends Game {
 		}
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_FIRED) {
 			SM.playSoundEffect("fire");
-			System.out.println("fire"); 
 			Projectile f1 = Projectile.loadProjectile("id",WeaponSelect.get(weapon));
 			Tank t1 = (Tank)PlayerSelect.get(player);
 
 			DisplayObject barrel = t1.getChild(0);
-			Point Barrelpoint = barrel.localToGlobal(barrel.getPosition());
-			Barrelpoint = new Point(Barrelpoint.x-7,Barrelpoint.y+40);
+			Point bp = barrel.getPivotPoint();
+			bp = new Point(bp.x+10,bp.y+60);
+			Point Barrelpoint = barrel.localToGlobal(bp);
+			Barrelpoint = new Point(Barrelpoint.x,Barrelpoint.y);
 			f1.setPosition(Barrelpoint);
 			
-			double rad = Math.toRadians(t1.angle);
+			double rad = Math.toRadians(t1.angle-90);
 			int xv = (int)(velocity*Math.cos(rad));
 			int yv = -(int)(velocity*Math.sin(rad));
-//			System.out.println(xv);
-//			System.out.println(yv);
 			f1.push_force(xv,yv);
 			this.addEventListener(f1, ProjectileEvent.PROJECTILE_EXPLODE);
 			Proj.addChild(f1);
@@ -559,7 +557,6 @@ public class Prototype extends Game {
 		if(event.getEventType() == ProjectileEvent.PROJECTILE_EXPLODE) {
 			SM.playSoundEffect("explode");
 			ProjectileEvent e = (ProjectileEvent)event;
-			System.out.println("explode"); 
 			Projectile p = (Projectile)Proj.getChild(e.getId());
 			if(p!=null) {
 				ArrayList<Projectile> psub = p.getSubmunition();
@@ -589,7 +586,7 @@ public class Prototype extends Game {
 	//			Point pexp = localToGlobal(exp.getPosition,exp)
 				if(exp.getPosition().x==0 && exp.getPosition().y==0)exp.setPosition(p.localToGlobal(p.getPosition()));
 				else exp.setPosition(exp.localToGlobal(exp.getPosition()));
-				System.out.println(exp.getPosition());
+				
 //				exp.setRotation(p.getRotation());
 				EXP.addChild(exp);
 				Proj.removeChildById(e.getId());
@@ -604,14 +601,21 @@ public class Prototype extends Game {
 		if(event.getEventType() == PlayerEvent.TURN_END) {
 			player=(player+1)%Tanks.getChildren().size();
 			pause_movement = false;
+			fire = true;
 		}
 		if(event.getEventType() == GameEvent.GAME_OVER) {
 			this.pause();
 		}
 		if(event.getEventType()==TankEvent.EXPLODE) {
 			TankEvent e = (TankEvent)event;
-			Tanks.removeChild(e.getTank());
-			PlayerSelect.remove(e.getTank());
+			Tween TankRemoval = new Tween("explode",e.getTank());
+			Tween GunRemoval = new Tween("explodeGun",e.getTank().getGun());
+			TankRemoval.animate(TweenableParams.Tweenables.Alpha, 1.0, 0.0, 1000.0);
+			GunRemoval.animate(TweenableParams.Tweenables.Alpha, 1.0, 0.0, 1000.0);
+			TJ.add(GunRemoval);
+			TJ.add(TankRemoval);
+//			Tanks.removeChild(e.getTank());
+//			PlayerSelect.remove(e.getTank());
 		}
 	}
 	
