@@ -172,6 +172,8 @@ public class Prototype extends Game {
 	//			tank1.push_force(0,-50);
 	//				this.dispatchEvent(new SoundEvent(SoundEvent.TRIGGER_SOUND_EFFECT,this,"jump"));
 			}	
+			if(f_count < 100)f_count++;
+			else fire = true;
 			for(int r = 0; r<this.Tanks.getChildren().size(); r++) {
 				for(int q = 0; q<lv.getNumPlatforms(); q++) {
 					//Tanks.getChild(r).setNormalUp(false);
@@ -245,7 +247,7 @@ public class Prototype extends Game {
 				t.gravity();
 				t.onGround = false;
 				t.move = false;
-				if(!t.move)t.xfriction();
+				t.xfriction();
 				t.move();
 				for(int x = 0;x<lv.getChildren().size();x++) {
 					DisplayObject c = lv.getChild(x);
@@ -343,6 +345,11 @@ public class Prototype extends Game {
 						tank4.setPosition(lv.getSpawnPoint());
 						Tanks.addChild(tank4);
 						break;
+					}
+					if(lv.getId()=="lv3") {
+						for(int i = 0; i<Tanks.getChildren().size();i++) {
+							Tanks.getChild(i).setFriction(.01);
+						}
 					}
 				}
 				this.addChild(Proj);
@@ -538,7 +545,6 @@ public class Prototype extends Game {
 			SM.playSoundEffect("fire");
 			Projectile f1 = Projectile.loadProjectile("id",WeaponSelect.get(weapon));
 			Tank t1 = (Tank)PlayerSelect.get(player);
-
 			DisplayObject barrel = t1.getChild(0);
 			Point bp = barrel.getPivotPoint();
 			bp = new Point(bp.x+10,bp.y+60);
@@ -550,6 +556,10 @@ public class Prototype extends Game {
 			int xv = (int)(velocity*Math.cos(rad));
 			int yv = -(int)(velocity*Math.sin(rad));
 			f1.push_force(xv,yv);
+			if(lv.getId()=="lv3") {
+				int slide = -(int)(10*Math.cos(rad));
+				t1.push_force(new Point(slide,0));
+			}
 			this.addEventListener(f1, ProjectileEvent.PROJECTILE_EXPLODE);
 			Proj.addChild(f1);
 			this.dispatchEvent(new PlayerEvent(this,PlayerEvent.FIRE));
@@ -601,7 +611,7 @@ public class Prototype extends Game {
 		if(event.getEventType() == PlayerEvent.TURN_END) {
 			player=(player+1)%Tanks.getChildren().size();
 			pause_movement = false;
-			fire = true;
+//			fire = true;
 		}
 		if(event.getEventType() == GameEvent.GAME_OVER) {
 			this.pause();

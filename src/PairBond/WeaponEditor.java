@@ -11,6 +11,8 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Scanner;
+
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import Sprites.Coin;
@@ -292,7 +294,16 @@ public class WeaponEditor extends Game {
 				Switch_count = 2;
 			}
 		}
-
+		
+		if(pressedKeys.contains(KeyEvent.VK_BACK_SLASH)) {
+			System.out.println("in");
+			Scanner reader = new Scanner(System.in);
+			System.out.println("Enter a number: ");
+			String s = reader.nextLine();
+			reader.close();
+			String ImgName = String.format("weapons/%s", imgName);
+			Projectile.saveProjectile(new Projectile("f1", ImgName, BlastType, radius, damage, duration, height, width, fuse, spread,sub,scalex,scaley), s);
+		}
 		
 		if(pressedKeys.contains(KeyEvent.VK_SPACE) && fire) {
 			fire = false;
@@ -397,14 +408,18 @@ public class WeaponEditor extends Game {
 				
 			}
 		}
-		DisplayObject barrel = tank1.getChild(0);
-		Point bp = barrel.getPivotPoint();
-		bp = new Point((int)bp.getX()+10,(int)bp.getY()+60);
-		Point Barrelpoint = barrel.localToGlobal(bp);
-		g2.setColor(Color.GREEN);
-		g2.draw(new Ellipse2D.Double(Barrelpoint.x,Barrelpoint.y,10.0,10.0));
-		for(int x = 0; x<Proj.getChildren().size();x++) {
-			g2.draw(Proj.getChild(x).getGlobalHitbox());
+		if(tank1!=null) {
+			DisplayObject barrel = tank1.getChild(0);
+			Point bp = barrel.getPivotPoint();
+			bp = new Point((int)bp.getX()+10,(int)bp.getY()+60);
+			Point Barrelpoint = barrel.localToGlobal(bp);
+			g2.setColor(Color.GREEN);
+			g2.draw(new Ellipse2D.Double(Barrelpoint.x,Barrelpoint.y,10.0,10.0));
+			if(Proj!=null) {
+				for(int x = 0; x<Proj.getChildren().size();x++) {
+					g2.draw(Proj.getChild(x).getGlobalHitbox());
+				}
+			}
 		}
 		
 	}
